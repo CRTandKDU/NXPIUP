@@ -1,0 +1,1302 @@
+#+TITLE: SATFAULT at 40
+#+DATE: <2025-07-17 jeu.>
+#+AUTHOR: jmc@neurondata.org
+
+#+begin_src emacs-lisp :results none :exports none
+  (defun jmc-special-block (orig-fun &rest args)
+    (let ((res (apply orig-fun args))
+    	(block-type (org-element-property :type (car args)))
+  	)
+      (if (string= "RULE" block-type)
+  	(let* ((beg (org-element-property :contents-begin (car args)))
+  	       (end (org-element-property :contents-end   (car args)))
+  	       (params (org-element-property :parameters (car args)))
+  	      )
+  	  (format "<pre><code>RULE %s\nIF\n%s\n</code></pre>\n\n" params (buffer-substring-no-properties beg end)))
+  	  res)
+      )
+    )
+
+    (advice-add 'org-html-special-block :around #'jmc-special-block)
+#+end_src
+
+#+begin_src emacs-lisp :results none :exports none
+  (advice-remove 'org-html-special-block #'jmc-special-block)
+#+end_src
+
+* The Historical Knowledge Base (1985): A 40-year Anniversary.
+Revisiting NEXPERT historical demonstration knowledge-base.
+
+For a couple of years, and at least until /Nexpert Object/ was released, the so-called ~SATFAULT~ knowledge-base
+was the product demonstration workhorse. It contributed significantly to the early success of the company on the then new and expanding AI market on microcomputers and workstations. The theme amplified the high-tech image by bringing together two widespread cultural threads of the triumphant advanced technologies of the eighties: the space-age successes of the NASA -- specifically of the Space Shuttle Program, pre /Challenger/ -- and the rapid adoption of /expert systems/ -- symbolic AI applications pioneered at places like CMU, Stanford and MIT -- in services and in industry.
+
+As a technical artifact, ~SATFAULT~ was primarily used to demonstrate the blending of powerful features and elegant graphical user interface, particularly stunning on the Macintosh introduced barely a year before in 1984. But it was also designed by its authors, Alain T. Rappaport, co-founder, President and Chief Scientist at Neuron Data, and [[https://en.wikipedia.org/wiki/Guy_Andr%C3%A9_Boy][Guy A. Boy]], then at NASA Ames, as a "cultural object" for investigation of Human-Computer Interface (HCI), human-centered design and intelligent assistant systems, suggestive of new and innovative usages of expert system technology beyond symbolic knowledge representation.
+
+** Overview: The Space Transportation System (STS)
+In the late seventies and early eighties NASA was busy with the [[https://en.wikipedia.org/wiki/Space_Transportation_System][STS program]] envisioned in February 1969, by a Space Task Group, appointed by President Richard Nixon and headed by Vice President Spiro Agnew to recommend human space projects beyond Apollo. NASA appropriated the name for its /Space Shuttle Program/, the only component of the proposal to survive Congressional funding approval.
+
+The purpose of the system was two-fold:
+  * to reduce the cost of spaceflight by replacing the existing method of launching capsules on expendable rockets with reusable spacecraft; and
+  * to support ambitious follow-on programs including permanent orbiting space stations around Earth and the Moon, and a human landing mission to Mars.
+
+As a result of funding constraints, Shuttle was significantly scaled back from its planned degree of reusability. The overall program scheduled was also delayed. [[https://en.wikipedia.org/wiki/Space_Shuttle_program#Program_history][The Shuttle first flew in 1981, and was retired in 2011]].
+
+** NASA actively seeked support for the Shuttle program
+In the early eighties, NASA was actively involved in seeking industrial and financial support for the budget-constrained Shuttle program. As reviewed at the [[https://ntrs.nasa.gov/api/citations/19880001489/downloads/19880001489.pdf][Space Construction Conference, December 1986]] by G.M. Levin:
+
+#+begin_quote
+In October 1983 the Office of Space Flight at NASA Headquarters
+established a new program office to: undertake a series of
+developments which would support program objectives of the Office of
+Space Flight; give younger NASA engineers "hands on" experience with
+the development of flight hardware; lead to new business for the Space
+Transportation System (STS); and stimulate present customers of the
+STS towards more efficient use of the unique capabilities of the space
+shuttle. The Flight Demonstration Program was initiated by undertaking
+the development of six demonstrations. The first of these
+demonstrations, the Orbital Refueling System was successfully flown on
+STS 41-C on August 29, 1984.  The second and third Flight
+Demonstrations, EASE and ACCESS, were performed successfully on STS
+61-B on November 29 and December l, 1985.
+#+end_quote
+
+As detailed in this prospective report, other planned demonstrations were a voice control system for the shuttle's closed circuit television system, an infrared intercommunications system, a plasma motor/generator proof of function demonstration, the implementation of a force feedback device on the shuttle's remote manipulator system, the transfer of super fluid helium on orbit, a laser docking sensor and a small expendable deployment system.
+
+Typical areas of emphasis for Flight Demonstrations were:
+  * Space Construction/Large Space Structure
+  * Expendable Resupply
+  * System Improvement
+  * Satellite Servicing
+  * Tether Applications
+
+#+caption: Flight Readiness Schedule for OSF Flight Demonstrations
+[[./img/OSF_Demonstrations.png]]
+
+Note that some, if not all, of these broad objectives are still valid and [[https://breakingdefense.com/2025/04/space-force-picks-up-pace-of-on-orbit-refueling-experiments/][of interest today]] even though undergoing a changing field and different business model. The Orbital Refueling System (ORS) is particularly significant here.
+
+** The ORS Flight Demonstration: STS-41G
+#+begin_quote
+The Orbital Refueling System was the first Flight Demonstrations Program
+sponsored by the Office of Space Flight.
+develop and demonstrate the equipment and procedures for a hydrazine fuel
+transfer system; to develop and demonstrate the tools needed to interface with
+existing satellites to accomplish fuel transfer; and to developand evaluate
+specific procedures to refuel present satellites of the Landsat type.
+
+The ORS consisted of five major categories: the structural subsystem;
+the fluid subsystem; the avionics subsystem; the thermal control subsystem;
+and the EVA tools. The ORS tankage unit (with its fuel tanks, piping,
+valving, heaters, and avionics) was mounted on a Mission Peculiar Experiment
+Support Structure (MPESS) in the cargo bay of the orbiter. In the
+demonstration configuration the ORS was capable of multiple transfers of
+approximately 200 pounds of hydrazine fuel. The ORS could be modified to
+deliver approximately 500pounds of fuel to an orbiting satellite by a fuel
+line connected with a hydrazine servicing interface toolset.The ORS was
+interfaced to the Orbiter general purpose computer,and analog channels were
+available for data monitoring. Control of the ORS fuel transfer was from the
+Aft Flight Deck. During the ORS demonstration fuel was transferred througha
+fixed propellant bypass as well as through a fuel line connection established
+by an EVA crew member.
+
+The EVA tools were the unique hardware items required to: permit access
+to the manual fill valve; provide redundant seals for crew safety; and control
+fluid flow to the satellite.The toolset consisted of seven items designed
+for satellite engagement,valve opening,and valve closing. The fuel transfer
+unit and valve,once engaged,became permanently attached to the satellite,
+thus providing a standard interface for refueling.
+#+end_quote
+
+#+caption: STS-41G Patch
+#+ATTR_HTML: :width 300px
+[[./img/sts-41g.jpg]]
+
+The Orbital Refueling System (ORS), managed by NASA’s Johnson Space
+Center in Houston, while not directly an Earth observation payload the
+primary one in the STS-41G flight, assessed the feasibility of
+on-orbit refueling of the Landsat-4 remote sensing satellite, then
+under consideration as a mission in 1987, as well as Department of
+Defense satellites not designed for on-orbit refueling. In the
+demonstration, the astronauts remotely controlled the transfer of
+hydrazine, a highly toxic fuel, between two tanks mounted in the
+payload bay. During a spacewalk, two crew members simulated connecting
+the refueling system to a satellite and later tested the connection
+with another remotely controlled fuel transfer.
+
+#+caption: Leestma, left, and Sullivan working on the Orbital Refueling System during the spacewalk.
+#+ATTR_HTML: :width 300px
+[[./img/sts-41g_eva-leestma-sullivan.jpg]]
+
+During the mission components of Orbital Refueling System were connected in an EVA by Kathryn Sullivan and David Leestma on October 11, 1984 (3h 29m), demonstrating that it is possible to refuel satellites in orbit.
+The Orbital Refueling System experiment was a demonstration of Shuttle-human-tended capabilities to refuel already orbiting satellites once their self-contained thruster systems have depleted fuel reserves. This demonstration was a precursor to actual Shuttle refueling missions for satellites.
+
+For the final fuel transfer stage, mission specialists David Leestma and Kathryn Sullivan donned their spacesuits and proceed to the aft end of the payload bay where the ORS equipment was mounted on an MPESS (Mission Peculiar Experiment Support Structure) along with the Large Format Camera. There the crewmembers opened the tool kit and removed the hydrazine servicing tool - which was already be hooked up to the fuel supply tank. The crewmembers connected it to the ground fill panel of a simulated satellite panel, thus completing the fuel supply link. After pressure checking the hookup, the crewmembers returned to the cabin.
+
+The actual transfer of the hydrazine, which is a very toxic and corrosive material, was controlled from the aft flight deck experiment control panels. The ORS was equipped with sensors which provide pressure and temperature values and switch and valve positions.
+
+One of the important findings of ORS was the heating of pressurant gas behind the bladder. It turned out the transfer rate was limited by a desire to keep temperatures from reaching the decomposition temperature of hydrazine (200 F). The transfer process was controlled to limit ullage gas temperatures to 150 F. Kauffam 37 gives a detailed analysis and post flight reconciliation to the test data. Unfortunately the ORS instrumentation was limited to one temperature sensor for each tank mounted on the sidewall external to the tank so actual ullage gas temperatures are unknown. (See review of the later state of the art in [[https://ntrs.nasa.gov/api/citations/20000121212/downloads/20000121212.pdf][Technologies for Refueling Spacecraft On-Orbit]], by David J. Chato published in 2000.)
+
+** The Landsat refueling system
+As for the [[https://www.eoportal.org/satellite-missions/landsat-4-5#spacecraft][Landsat-4]], which orbital refueling was envisioned by the OSF, it was an experimental earth resources monitoring system with the new powerful remote-sensing capabilities of the thematic mapper (TM), and it provided a transition for both foreign and domestic users from the multispectral scanner (MSS) data to the higher resolution and data rate of the TM. It had a complete end-to-end highly automated data system, which was designed to be a new generation system, and was a major step forward in global remote-sensing applications. The [[https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=1982-072A][Landsat-4]] mission consisted of an orbiting satellite (flight segment) with the necessary wideband data links and support systems, and a ground segment. The Landsat 4 flight segment consisted of two major systems:
+
+  * the instrument module, containing the instruments together with the mission unique subsystems, such as the solar array and drive, the TDRS antenna, the wide-band module (WBM), and the global positioning system (GPS);
+  * and the multimission modular spacecraft (MMS) that contained the modularized and standardized power, propulsion, attitude control, and communications and data handling subsystems.
+
+#+caption: Landsat-4 and 5 spacecraft
+#+ATTR_HTML: :width 300px
+[[./img/LS4_5.jpg]]
+
+The flight segment was designed with 3 years nominal lifetime in orbit and could be extended through in-orbit replacement capability when the Space Shuttle became operational. The spacecraft was placed into an orbit having a descending node equatorial crossing between 9:30 and 10:00 a.m. local time. The spacecraft and attendant sensors were operated through the GSTDN stations before the Tracking And Data Relay Satellite System (TDRSS) was available. Landsat 4 was decommissioned on 15 June 2001.
+
+As recently as April 2024, USGS reviewed the status of the current Landsat-7 to Landsat-9 missions and gave indication that Landsat-7 (1999-2024), recently lowered into lower storage, orbit was awaiting [[https://landsat.gsfc.nasa.gov/article/osam-1-proving-satellite-servicing-starting-with-landsat-7/][OSAM-1]] satellite rendezvous and refueling (est. 2026).
+
+#+caption: Landsat Status (as of 2024)
+#+ATTR_HTML: :width 600px
+[[./img/LandsatStatus.png]]
+
+And as this is written [[https://interestingengineering.com/space/china-refuels-satellites-in-earths-orbit][China’s satellites may have pulled off world’s first in-orbit fuel refill, beating US]] turning ORS up to a power fight for geopolitical dominance.
+    
+** HORSES
+The original knowledge-base development was inspired by Boy's work at NASA Ames on [[https://ntrs.nasa.gov/api/citations/19880014770/downloads/19880014770.pdf][Fault Diagnosis In Orbital Refueling Operations]], a paper presented at the /Space Station Human Factors Research Review/, NASA Ames Research Center, December 1985. Thus clearly positioned within the field of Human-Computer Interaction (HCI) research, the /expert system/ approach pionneered here was a stepping stone to later /intelligent assistant systems/ research:
+
+#+begin_quote
+Usually, operation manuals are provided for helping astronauts during space
+operations. These manuals include normal and malfunction procedures.
+Transferring operation manual knowledge into a computerized form is not a
+trivial task. This knowledge is generally written by designers or operation
+engineers, and is often quite different from the user logic. The latter is usually a
+"compiled" version of the former. Experiments are in progress to assess the user
+logic. HORSES (Human - Orbital Refueling System - Expert System) is an
+attempt to include both of these logics in the same tool. It is designed to assist
+astronauts during monitoring and diagnosis tasks. Basically, HORSES includes a
+situation recognition level coupled to an analytical diagnoser, and a meta-level
+working on both of the previous levels. HORSES is a good tool for modeling task
+models and is also more broadly useful for knowledge design.
+#+end_quote
+
+So the topic is the study of Human-Computer-System tri-partite interactions in "normal" and "abnormal" situations. The "system" being in this case the ORS.
+
+#+caption: Landsat-D will utilize the ORS equipment and procedures for propellant replenishment
+#+ATTR_HTML: :width 300px
+[[./img/LandsatD.png]]
+
+The so-called /User's Guide Expert System/ drew heavily on modelling approaches and human factors studies to address its objectives of providing an optimal level of automation and levelled explanations all within an easy-to-use interface. It heralded the "seminal HCI" phase proposed by Joelle Coutaz in [fn:1].
+
+On the Macintosh, the transposition of a simplified version of the HORSES expert system, used abundant graphics and images to serve the above objectives.
+
+#+caption: Comparison of visuals. Left schematics from NASA manual. Right screenshot presentation driven by the expert system.
+#+ATTR_HTML: :width 1000px
+[[./img/schemas.png]]
+
+NASA procedure manuals were transposed into expert system's rules used both for diagnosis/situation assessment plus remedies and for explanations.
+
+#+caption: Where did ~CRT_and_KDU~ come from?
+#+ATTR_HTML: :width 689px
+[[./img/CRTKDU.png]]
+
+** Overview of SATFAULT
+Keeping in line with the methodology of the original HORSES expert system, the much simplified ~SATFAULT~ usual session ran through three distinct phases:
+  * (Simulated) data capture and alarm levels checks: signs are data
+    points like pressure or temperature in hydrazine tanks, hypothesis
+    are categories of alarms to keep track of triggering events in
+    later phases.
+  * Immediate remedies, so called "actions", to bring back data
+    indicators to nominal values. Signs are the alarm
+    types--hypotheses in the previous phase--and hypothesis are the
+    action reference, as defined in the NASA manual. The RHS of these
+    rules change the data signs back to nominal values when triggered.
+  * Diagnosis rules proper, which based on the result of the immediate
+    remedy actions and the alarm type from the first phase offer
+    explanation and assessment of the event/situation.
+
+Such a structure, while simplistic compared to the original, nonetheless played well to the competitive features of the engine. Starting a session by volunteering some data points outside their safe zone for some tanks, for instance, would trigger forward chaining, processing and checking the data, possibly with additional interactive questions or graphics/image instructions, through the 3 phases above to produce a complete, explainable trace of reasoning from data to diagnosis. Suggesting a diagnostic hypothesis, on the other hand (usually 'EXC_P_RISE_V10' or 'EXC_P_RISE_V16'), would start backward chaining instead and drive the optimal collection of data points, questioning the user or retrieving data from outside sources like spreadsheet files (or executable third-party programs), to produce a comprehensive situation assessment within the initial diagnosis to explore.
+  
+* A Modern Rendering of SATFAULT
+This transposition of the original knowledge-base (1996), itself an upgraded version to object-oriented representation, is presented here[fn:2] with FORTH as the extension programming language for compound conditions and actions.
+
+** Data capture and checks/alarms.
+
+#+BEGIN_RULE  tank_pressure_check_1
+pressure_P1 nxp@ 370 >
+THEN ALARM_TANK_WAS_HIGH
+#+END_RULE
+
+#+BEGIN_RULE tank_pressure_check_2
+pressure_P2 nxp@ 370 >
+THEN ALARM_TANK_WAS_HIGH
+#+END_RULE
+
+#+BEGIN_RULE tank_pressure_check_3
+pressure_P3 nxp@ 370 >
+THEN ALARM_TANK_WAS_HIGH
+#+END_RULE
+
+#+BEGIN_RULE tank_pressure_check_4
+pressure_P4 nxp@ 370 >
+THEN ALARM_TANK_WAS_HIGH
+#+END_RULE
+
+#+BEGIN_RULE tank_pressure_check_5
+pressure_P1 nxp@ pressure_P3 nxp@ =
+THEN TANKS_EQUAL
+#+END_RULE
+
+#+BEGIN_RULE tank_pressure_check_6
+pressure_P2 nxp@ pressure_P4 nxp@ =
+THEN TANKS_EQUAL
+#+END_RULE
+
+#+BEGIN_RULE tank_pressure_check_5
+pressure_P1 nxp@ 370 >
+THEN ALERT
+#+END_RULE
+
+#+BEGIN_RULE tank_pressure_check_6
+pressure_P2 nxp@ 370 >
+THEN ALERT
+#+END_RULE
+
+#+BEGIN_RULE tank_pressure_check_7
+pressure_P1 nxp@ 20 <
+THEN ALERT
+#+END_RULE
+
+#+BEGIN_RULE tank_pressure_check_8
+pressure_P2 nxp@ 20 <
+THEN ALERT
+#+END_RULE
+
+#+BEGIN_RULE tank_pressure_check_9
+pressure_out_P3 nxp@ 370 >
+THEN ALERT
+#+END_RULE
+
+#+BEGIN_RULE tank_pressure_check_10
+pressure_out_P3 nxp@ 370 >
+THEN ALERT
+#+END_RULE
+
+#+BEGIN_RULE tank_pressure_check_11
+pressure_out_P3 nxp@ 20 <
+THEN ALERT
+#+END_RULE
+
+#+BEGIN_RULE tank_pressure_check_12
+pressure_out_P4 nxp@ 20 <
+THEN ALERT
+#+END_RULE
+
+#+BEGIN_RULE tank_pressure_check_13
+pressure_P1 nxp@ 370 >
+THEN ALARM_TANK_WAS_P1_OR_P2
+#+END_RULE
+
+#+BEGIN_RULE tank_pressure_check_14
+pressure_P2 nxp@ 370 >
+THEN ALARM_TANK_WAS_P1_OR_P2
+#+END_RULE
+
+#+BEGIN_RULE tank_pressure_check_15
+pressure_P1 nxp@ 20 <
+THEN ALARM_TANK_WAS_P1_OR_P2
+#+END_RULE
+
+#+BEGIN_RULE tank_pressure_check_16
+pressure_P2 nxp@ 20 <
+THEN ALARM_TANK_WAS_P1_OR_P2
+#+END_RULE
+
+#+BEGIN_RULE tank_pressure_check_17
+pressure_P1 nxp@ 370 >
+THEN TANK_P1_OR_P2_WAS_HIGH
+#+END_RULE
+
+#+BEGIN_RULE tank_pressure_check_18
+pressure_P2 nxp@ 370 >
+THEN TANK_P1_OR_P2_WAS_HIGH
+#+END_RULE
+
+#+BEGIN_RULE
+pressure_out_P3 nxp@ 20 <
+THEN TANKS_OUT_PRESSURE_LOW
+#+END_RULE
+
+#+BEGIN_RULE data_capture_2
+pressure_out_P4 nxp@ 20 <
+THEN TANKS_OUT_PRESSURE_LOW
+#+END_RULE
+
+#+BEGIN_RULE
+NO TANKS_OUT_PRESSURE_LOW
+pressure_out_P3 nxp@ pressure_out_P4 nxp@ =
+THEN THERMAL_TRANSIENT_CONDITION
+#+END_RULE
+
+** Immediate action remedies
+
+#+BEGIN_RULE action_remedy_1
+$CRT_and_KDU nxp@ s( AGREE) compare 0=
+$task nxp@ s( FLUID_TRANSFER) compare 0= invert
+YES ALARM_TANK_WAS_P1_OR_P2
+YES TANK_P1_OR_P2_WAS_HIGH
+THEN ACTION_12
+200 pressure_P1 nxp!
+205 pressure_P2 nxp!
+300 pressure_P3 nxp!
+200 pressure_P4 nxp!
+200 pressure_out_P3 nxp!
+205 pressure_out_P4 nxp!
+200 pressure_P5 nxp!
+#+END_RULE
+
+#+BEGIN_RULE action_remedy_2
+$CRT_and_KDU nxp@ s( AGREE) compare 0=
+$task nxp@ s( FLUID_TRANSFER) compare 0= invert
+YES ALARM_TANK_WAS_P1_OR_P2
+NO TANK_P1_OR_P2_WAS_HIGH
+THEN ACTION_14
+200 pressure_P1 nxp!
+205 pressure_P2 nxp!
+300 pressure_P3 nxp!
+200 pressure_P4 nxp!
+200 pressure_out_P3 nxp!
+205 pressure_out_P4 nxp!
+#+END_RULE
+
+#+BEGIN_RULE action_remedy_3
+YES BOOLEAN
+$CRT_and_KDU nxp@ s( AGREE) compare 0=
+$task nxp@ s( FLUID_TRANSFER) compare 0= invert
+YES ALARM_TANK_WAS_P1_OR_P2
+pressure_out_P3 nxp@ pressure_out_P4 nxp@ <>
+THEN ACTION_19
+200 pressure_out_P3 nxp!
+200 pressure_out_P4 nxp!
+#+END_RULE
+
+#+BEGIN_RULE action_remedy_4
+$CRT_and_KDU nxp@ s( AGREE) compare 0=
+$task nxp@ s( FLUID_TRANSFER) compare 0=
+YES ALERT
+THEN ACTION_4
+200 pressure_P1 nxp!
+205 pressure_P2 nxp!
+300 pressure_P3 nxp!
+200 pressure_P4 nxp!
+200 pressure_out_P3 nxp!
+205 pressure_out_P4 nxp!
+#+END_RULE
+
+** Diagnostic rules
+
+#+BEGIN_RULE diagnostic_1
+$CRT_and_KDU nxp@ s( AGREE) compare 0=
+$task nxp@ s( FLUID_TRANSFER) compare 0= invert
+NO ALARM_TANK_WAS_P1_OR_P2
+pressure_out_P3 nxp@ pressure_out_P4 nxp@ =
+THEN DECREASE_DUE_TO_THERMAL_CONDITIONS
+#+END_RULE
+
+#+BEGIN_RULE diagnostic_2
+YES ACTION_12
+pressure_P2 nxp@ pressure_P5 nxp@ =
+THEN EXC_P_RISE_V10
+s( img/DIAGNOS.PNG) nxp_show
+#+END_RULE
+
+#+BEGIN_RULE diagnostic_3
+YES ACTION_12
+pressure_P1 nxp@ pressure_P5 nxp@ =
+THEN EXC_P_RISE_V3
+#+END_RULE
+
+#+BEGIN_RULE diagnostic_4
+YES ACTION_4
+YES TANKS_EQUAL
+YES ALARM_TANK_WAS_HIGH
+THEN EXC_P_RISE_V16
+#+END_RULE
+
+#+BEGIN_RULE diagnostic_5
+YES ACTION_19
+NO TANKS_OUT_PRESSURE_LOW
+pressure_out_P3 nxp@ pressure_out_P4 nxp@ =
+THEN THERMAL_TRANSIENT_CONDITION
+#+END_RULE
+
+#+BEGIN_RULE diagnostic_6
+YES ACTION_19
+YES TANKS_OUT_PRESSURE_LOW
+pressure_out_P3 nxp@ pressure_out_P4 nxp@ =
+THEN POSSIBLE_LEAK
+s( img/POSSIBLE.PNG) nxp_show
+#+END_RULE
+
+#+BEGIN_RULE diagnostic_7
+YES ACTION_14
+YES TANKS_EQUAL
+THEN POSSIBLE_LEAK
+s( img/CONTACT_.PNG) nxp_show
+#+END_RULE
+
+#+BEGIN_RULE diagnostic_8
+YES ACTION_4
+YES TANKS_EQUAL
+NO ALARM_TANK_WAS_HIGH
+THEN POSSIBLE_LEAK
+s( img/POSSIBLE.PNG) nxp_show
+#+END_RULE
+
+#+BEGIN_RULE diagnostic_9
+$CRT_and_KDU nxp@ s( DISAGREE) compare 0=
+YES ALERT
+THEN MDM_ANALOG_INPUT_PARAMETER_LOSS
+#+END_RULE
+
+#+BEGIN_RULE diagnostic_10
+Yes ACTION_14
+NO TANKS_EQUAL
+THEN XDRC_FAILURE_OR_BIAS
+#+END_RULE
+
+#+BEGIN_RULE diagnostic_11
+YES ACTION_4
+NO TANKS_EQUAL
+THEN XDRC_FAILURE_OR_BIAS
+#+END_RULE
+
+#+BEGIN_RULE diagnostic_12a
+YES ACTION_19
+pressure_out_P3 nxp@ pressure_out_P4 nxp@ <>
+THEN XDRC_FAILURE_OR_BIAS
+#+END_RULE
+
+#+BEGIN_RULE diagnostic_12b
+YES ACTION_12
+pressure_P1 nxp@ pressure_P5 nxp@ <>
+pressure_P2 nxp@ pressure_P5 nxp@ <>
+THEN XDRC_FAILURE_OR_BIAS
+#+END_RULE
+
+** Annotations
+#+BEGIN_ATTRIBUTE $task
+VALUE FLUID_TRANSFER
+VALUE GROUND_TESTING
+VALUE OTHER
+#+END_ATTRIBUTE
+
+#+BEGIN_ATTRIBUTE $CRT_and_KDU
+VALUE AGREE
+VALUE DISAGREE
+URL https://spaceshuttleguide.com/CRTSystemKeyboard.htm
+#+END_ATTRIBUTE
+
+
+* A version of the original file
+Files preserved from the Java implementation on <1996-07-16 mar.>
+
+#+begin_example
+(@VERSION=	040)
+(@COMMENTS=	"@(#)satfault.tkb	6.2 95/11/28")
+(@COMMENTS=	"6272566")
+(@PROPERTY=	duration	@TYPE=Float;)
+(@PROPERTY=	fluid_nature	@TYPE=String;)
+(@PROPERTY=	length	@TYPE=Float;)
+(@PROPERTY=	location	@TYPE=String;)
+(@PROPERTY=	pressure	@TYPE=Float;)
+(@PROPERTY=	severity	@TYPE=String;)
+(@PROPERTY=	shape	@TYPE=String;)
+(@PROPERTY=	skill_required	@TYPE=String;)
+(@PROPERTY=	temperature	@TYPE=Float;)
+(@PROPERTY=	volume	@TYPE=Float;)
+
+
+(@CLASS=	actions
+	(@PUBLICPROPS=
+		duration
+		severity
+		skill_required
+	)
+)
+
+(@CLASS=	tanks
+	(@SUBCLASSES=
+		tanks_out
+		tanks_lat
+		tanks_in
+	)
+	(@PUBLICPROPS=
+		fluid_nature
+		location
+		pressure
+		temperature
+	)
+)
+
+(@CLASS=	tanks_in
+	(@PUBLICPROPS=
+		fluid_nature
+		location
+		pressure
+		temperature
+	)
+)
+
+(@CLASS=	tanks_lat
+	(@PUBLICPROPS=
+		fluid_nature
+		location
+		pressure
+		temperature
+	)
+)
+
+(@CLASS=	tanks_out
+	(@PUBLICPROPS=
+		fluid_nature
+		location
+		pressure
+		temperature
+	)
+)
+
+
+(@OBJECT=	action_12
+	(@PUBLICPROPS=
+		Value	@TYPE=Boolean;
+	)
+)
+
+(@OBJECT=	action_14
+	(@PUBLICPROPS=
+		Value	@TYPE=Boolean;
+	)
+)
+
+(@OBJECT=	action_19
+	(@PUBLICPROPS=
+		Value	@TYPE=Boolean;
+	)
+)
+
+(@OBJECT=	action_4
+	(@PUBLICPROPS=
+		Value	@TYPE=Boolean;
+	)
+)
+
+(@OBJECT=	alarm_tank_was_high
+	(@PUBLICPROPS=
+		Value	@TYPE=Boolean;
+	)
+)
+
+(@OBJECT=	alarm_tank_was_P1_or_P2
+	(@PUBLICPROPS=
+		Value	@TYPE=Boolean;
+	)
+)
+
+(@OBJECT=	ALERT
+	(@PUBLICPROPS=
+		Value	@TYPE=Boolean;
+	)
+)
+
+(@OBJECT=	CRT_and_KDU
+	(@PUBLICPROPS=
+		Value	@TYPE=String;
+	)
+)
+
+(@OBJECT=	DECREASE_DUE_TO_THERMAL_CONDITIONS
+	(@PUBLICPROPS=
+		Value	@TYPE=Boolean;
+	)
+)
+
+(@OBJECT=	EXC_P_RISE_V10
+	(@PUBLICPROPS=
+		Value	@TYPE=Boolean;
+	)
+)
+
+(@OBJECT=	EXC_P_RISE_V16
+	(@PUBLICPROPS=
+		Value	@TYPE=Boolean;
+	)
+)
+
+(@OBJECT=	EXC_P_RISE_V3
+	(@PUBLICPROPS=
+		Value	@TYPE=Boolean;
+	)
+)
+
+(@OBJECT=	investigate_hypothesis
+	(@PUBLICPROPS=
+		Value	@TYPE=Boolean;
+	)
+)
+
+(@OBJECT=	MDM_ANALOG_INPUT_PARAMETER_LOSS
+	(@PUBLICPROPS=
+		Value	@TYPE=Boolean;
+	)
+)
+
+(@OBJECT=	n
+	(@PUBLICPROPS=
+		Value	@TYPE=Float;
+	)
+)
+
+(@OBJECT=	POSSIBLE_LEAK
+	(@PUBLICPROPS=
+		Value	@TYPE=Boolean;
+	)
+)
+
+(@OBJECT=	problem
+	(@PUBLICPROPS=
+		Value	@TYPE=Boolean;
+	)
+)
+
+(@OBJECT=	START
+	(@PUBLICPROPS=
+		Value	@TYPE=Boolean;
+	)
+)
+
+(@OBJECT=	tank_out_P3
+	(@CLASSES=
+		tanks_out
+	)
+	(@SUBOBJECTS=
+		wall
+		valve_3_1
+		valve_3_2
+	)
+	(@PUBLICPROPS=
+		fluid_nature
+		length
+		location
+		pressure
+		shape
+		temperature
+		Value	@TYPE=Float;
+		volume
+	)
+)
+
+(@OBJECT=	tank_out_P4
+	(@CLASSES=
+		tanks_out
+	)
+	(@PUBLICPROPS=
+		fluid_nature
+		length
+		location
+		pressure
+		shape
+		temperature
+		Value	@TYPE=Float;
+		volume
+	)
+)
+
+(@OBJECT=	tank_out_pressure_high
+	(@PUBLICPROPS=
+		Value	@TYPE=Boolean;
+	)
+)
+
+(@OBJECT=	tank_out_pressure_low
+	(@PUBLICPROPS=
+		Value	@TYPE=Boolean;
+	)
+)
+
+(@OBJECT=	tank_P1
+	(@CLASSES=
+		tanks_in
+	)
+	(@PUBLICPROPS=
+		fluid_nature
+		length
+		location
+		pressure
+		shape
+		temperature
+		Value	@TYPE=Float;
+		volume
+	)
+)
+
+(@OBJECT=	tank_P1_or_P2_was_high
+	(@PUBLICPROPS=
+		Value	@TYPE=Boolean;
+	)
+)
+
+(@OBJECT=	tank_P2
+	(@CLASSES=
+		tanks_in
+	)
+	(@PUBLICPROPS=
+		fluid_nature
+		length
+		location
+		pressure
+		shape
+		temperature
+		Value	@TYPE=Float;
+		volume
+	)
+)
+
+(@OBJECT=	tank_P3
+	(@CLASSES=
+		tanks_lat
+	)
+	(@PUBLICPROPS=
+		fluid_nature
+		length
+		location
+		pressure
+		shape
+		temperature
+		Value	@TYPE=Float;
+		volume
+	)
+)
+
+(@OBJECT=	tank_P4
+	(@CLASSES=
+		tanks_lat
+	)
+	(@PUBLICPROPS=
+		fluid_nature
+		location
+		pressure
+		temperature
+		Value	@TYPE=Float;
+	)
+)
+
+(@OBJECT=	tank_P5
+	(@PUBLICPROPS=
+		pressure
+		Value	@TYPE=Float;
+	)
+)
+
+(@OBJECT=	tanks_equal
+	(@PUBLICPROPS=
+		Value	@TYPE=Boolean;
+	)
+)
+
+(@OBJECT=	task
+	(@PUBLICPROPS=
+		Value	@TYPE=String;
+	)
+)
+
+(@OBJECT=	THERMAL_TRANSIENT_CONDITION
+	(@PUBLICPROPS=
+		Value	@TYPE=Boolean;
+	)
+)
+
+(@OBJECT=	valve_3_1
+)
+
+(@OBJECT=	valve_3_2
+)
+
+(@OBJECT=	vradio
+	(@PUBLICPROPS=
+		Value	@TYPE=Boolean;
+	)
+)
+
+(@OBJECT=	wall
+)
+
+(@OBJECT=	XDRC_FAILURE_OR_BIAS
+	(@PUBLICPROPS=
+		Value	@TYPE=Boolean;
+	)
+)
+
+(@META=	alarm_tank_was_high.Value
+	@INFCAT=2;
+)
+
+(@META=	alarm_tank_was_P1_or_P2.Value
+	@INFCAT=2;
+)
+
+(@META=	CRT_and_KDU.Value
+	@PROMPT="Do the two displays (CRT and KDU) agree or disagree?";
+)
+
+(@META=	investigate_hypothesis.Value
+	@INFCAT=4;
+)
+
+(@META=	n.Value
+	@INFCAT=3;
+)
+
+(@META=	tank_P1_or_P2_was_high.Value
+	@INFCAT=2;
+)
+
+(@META=	task.Value
+	@PROMPT="During which task did the problem occur?";
+)
+
+(@RULE=	R1
+	(@LHS=
+		(=	(CRT_and_KDU)	("AGREE"))
+		(<>	(task)	("FLUID-TRANSFER"))
+		(Yes	(alarm_tank_was_P1_or_P2))
+		(Yes	(tank_P1_or_P2_was_high))
+	)
+	(@HYPO=	action_12)
+	(@RHS=
+		(Show	("action.nbm"))
+		(Assign	(n+1.0)	(n))
+		(Retrieve	("tanks")	(@TYPE="SYLK";))
+		(Retrieve	("ext_tank")	(@TYPE="SYLK";))
+	)
+)
+
+(@RULE=	R2
+	(@LHS=
+		(=	(CRT_and_KDU)	("AGREE"))
+		(<>	(task)	("FLUID-TRANSFER"))
+		(Yes	(alarm_tank_was_P1_or_P2))
+		(No	(tank_P1_or_P2_was_high))
+	)
+	(@HYPO=	action_14)
+	(@RHS=
+		(Execute	("Message")	(@WAIT=TRUE;@STRING="@TEXT=*** action 14,\
+@OK";))
+		(Retrieve	("tanks")	(@TYPE="SYLK";))
+	)
+)
+
+(@RULE=	R3
+	(@LHS=
+		(=	(CRT_and_KDU)	("AGREE"))
+		(<>	(task)	("FLUID-TRANSFER"))
+		(No	(alarm_tank_was_P1_or_P2))
+		(<>	((tank_out_P3.pressure)-(tank_out_P4.pressure))	(0.0))
+	)
+	(@HYPO=	action_19)
+	(@RHS=
+		(Execute	("Message")	(@WAIT=TRUE;@STRING="@TEXT=*** action 19,\
+@OK";))
+		(Assign	(n+1.0)	(n))
+		(Retrieve	("tanks")	(@TYPE="SYLK";))
+	)
+)
+
+(@RULE=	R4
+	(@LHS=
+		(=	(CRT_and_KDU)	("AGREE"))
+		(=	(task)	("FLUID-TRANSFER"))
+		(Yes	(ALERT))
+	)
+	(@HYPO=	action_4)
+	(@RHS=
+		(Execute	("Message")	(@WAIT=TRUE;@STRING="@TEXT=*** action 4,\
+@OK";))
+		(Retrieve	("tanks")	(@TYPE="SYLK";))
+		(Retrieve	("ext_tank")	(@TYPE="SYLK";))
+	)
+)
+
+(@RULE=	R6
+	(@LHS=
+		(>=	(<|tanks_in|>.pressure)	(370.0))
+	)
+	(@HYPO=	alarm_tank_was_high)
+)
+
+(@RULE=	R5
+	(@LHS=
+		(>=	(<|tanks_lat|>.pressure)	(460.0))
+	)
+	(@HYPO=	alarm_tank_was_high)
+)
+
+(@RULE=	R8
+	(@LHS=
+		(>=	(<|tanks_in|>.pressure)	(370.0))
+	)
+	(@HYPO=	alarm_tank_was_P1_or_P2)
+)
+
+(@RULE=	R7
+	(@LHS=
+		(<=	(<|tanks_in|>.pressure)	(20.0))
+	)
+	(@HYPO=	alarm_tank_was_P1_or_P2)
+)
+
+(@RULE=	R12
+	(@LHS=
+		(>=	(<|tanks_in|>.pressure)	(370.0))
+	)
+	(@HYPO=	ALERT)
+)
+
+(@RULE=	R11
+	(@LHS=
+		(>=	(<|tanks_out|>.pressure)	(460.0))
+	)
+	(@HYPO=	ALERT)
+)
+
+(@RULE=	R10
+	(@LHS=
+		(<=	(<|tanks_out|>.pressure)	(20.0))
+	)
+	(@HYPO=	ALERT)
+)
+
+(@RULE=	R9
+	(@LHS=
+		(<=	(<|tanks_in|>.pressure)	(20.0))
+	)
+	(@HYPO=	ALERT)
+)
+
+(@RULE=	R14
+	(@LHS=
+		(Yes	(investigate_hypothesis))
+		(>	(n)	(0.0))
+	)
+	(@HYPO=	DECREASE_DUE_TO_THERMAL_CONDITIONS)
+)
+
+(@RULE=	R13
+	(@LHS=
+		(=	(CRT_and_KDU)	("AGREE"))
+		(<>	(task)	("FLUID-TRANSFER"))
+		(No	(alarm_tank_was_P1_or_P2))
+		(=	((tank_out_P3.pressure)-(tank_out_P4.pressure))	(0.0))
+	)
+	(@HYPO=	DECREASE_DUE_TO_THERMAL_CONDITIONS)
+	(@RHS=
+		(Execute	("Message")	(@WAIT=TRUE;@STRING="@TEXT=*** Decrease Thermal Condition,\
+@OK";))
+	)
+)
+
+(@RULE=	R16
+	(@LHS=
+		(Yes	(investigate_hypothesis))
+		(>	(n)	(0.0))
+	)
+	(@HYPO=	EXC_P_RISE_V10)
+)
+
+(@RULE=	R15
+	(@LHS=
+		(Yes	(action_12))
+		(=	((tank_P2.pressure)-(tank_P5.pressure))	(0.0))
+	)
+	(@HYPO=	EXC_P_RISE_V10)
+	(@RHS=
+		(Show	("diagnos.nbm"))
+	)
+)
+
+(@RULE=	R18
+	(@LHS=
+		(Yes	(investigate_hypothesis))
+		(>	(n)	(0.0))
+	)
+	(@HYPO=	EXC_P_RISE_V16)
+)
+
+(@RULE=	R17
+	(@LHS=
+		(Yes	(action_4))
+		(Yes	(tanks_equal))
+		(Yes	(alarm_tank_was_high))
+	)
+	(@HYPO=	EXC_P_RISE_V16)
+	(@RHS=
+		(Execute	("Message")	(@WAIT=TRUE;@STRING="@TEXT=*** ORS 1 8,@OK";))
+		(Execute	("Message")	(@WAIT=TRUE;@STRING="@TEXT=*** CONTACT MCC 1,\
+@OK";))
+	)
+)
+
+(@RULE=	R20
+	(@LHS=
+		(Yes	(investigate_hypothesis))
+		(>	(n)	(0.0))
+	)
+	(@HYPO=	EXC_P_RISE_V3)
+)
+
+(@RULE=	R19
+	(@LHS=
+		(Yes	(action_12))
+		(=	((tank_P1.pressure)-(tank_P5.pressure))	(0.0))
+	)
+	(@HYPO=	EXC_P_RISE_V3)
+	(@RHS=
+		(Execute	("Message")	(@WAIT=TRUE;@STRING="@TEXT=*** ORS 1 4,@OK";))
+		(Execute	("Message")	(@WAIT=TRUE;@STRING="@TEXT=*** CONTACT MCC 1,\
+@OK";))
+	)
+)
+
+(@RULE=	R21
+	(@LHS=
+		(Assign	((0.0)-(1.0))	(n))
+	)
+	(@HYPO=	investigate_hypothesis)
+	(@RHS=
+		(Strategy	(@PFACTIONS=FALSE;))
+		(Retrieve	("tankst0")	(@TYPE="SYLK";))
+	)
+)
+
+(@RULE=	R22
+	(@LHS=
+		(=	(CRT_and_KDU)	("DISAGREE"))
+		(Yes	(ALERT))
+	)
+	(@HYPO=	MDM_ANALOG_INPUT_PARAMETER_LOSS)
+	(@RHS=
+		(Execute	("Message")	(@WAIT=TRUE;@STRING="@TEXT=*** MDM A I P LOSS,\
+@OK";))
+	)
+)
+
+(@RULE=	R26
+	(@LHS=
+		(Yes	(action_4))
+		(Yes	(tanks_equal))
+		(No	(alarm_tank_was_high))
+	)
+	(@HYPO=	POSSIBLE_LEAK)
+	(@RHS=
+		(Show	("leak.nbm"))
+		(Execute	("Message")	(@WAIT=TRUE;@STRING="@TEXT=*** CONTACT MCC 10,\
+@OK";))
+	)
+)
+
+(@RULE=	R25
+	(@LHS=
+		(Yes	(action_14))
+		(Yes	(tanks_equal))
+	)
+	(@HYPO=	POSSIBLE_LEAK)
+	(@RHS=
+		(Show	("leak.nbm"))
+		(Execute	("Message")	(@WAIT=TRUE;@STRING="@TEXT=*** CONTACT MCC 17,\
+@OK";))
+	)
+)
+
+(@RULE=	R24
+	(@LHS=
+		(Yes	(investigate_hypothesis))
+		(>	(n)	(0.0))
+	)
+	(@HYPO=	POSSIBLE_LEAK)
+)
+
+(@RULE=	R23
+	(@LHS=
+		(Yes	(action_19))
+		(Yes	(tank_out_pressure_low))
+		(=	((tank_out_P4.pressure)-(tank_out_P3.pressure))	(0.0))
+	)
+	(@HYPO=	POSSIBLE_LEAK)
+	(@RHS=
+		(Show	("leak.nbm"))
+		(Execute	("Message")	(@WAIT=TRUE;@STRING="@TEXT=*** CHECK MCC,\
+@OK";))
+	)
+)
+
+(@RULE=	R27
+	(@LHS=
+		(Assign	((0.0))	(n))
+		(Yes	(problem))
+	)
+	(@HYPO=	START)
+	(@RHS=
+		(Strategy	(@PFACTIONS=FALSE;))
+		(Retrieve	("tankst0")	(@TYPE="SYLK";))
+		(Assign	(FALSE)	(investigate_hypothesis))
+	)
+)
+
+(@RULE=	R28
+	(@LHS=
+		(>=	(<|tanks_out|>.pressure)	(460.0))
+	)
+	(@HYPO=	tank_out_pressure_high)
+)
+
+(@RULE=	R29
+	(@LHS=
+		(<=	(<|tanks_out|>.pressure)	(20.0))
+	)
+	(@HYPO=	tank_out_pressure_low)
+)
+
+(@RULE=	R30
+	(@LHS=
+		(>=	(<|tanks_in|>.pressure)	(370.0))
+	)
+	(@HYPO=	tank_P1_or_P2_was_high)
+)
+
+(@RULE=	R32
+	(@LHS=
+		(=	((tank_P2.pressure)-(tank_P4.pressure))	(0.0))
+	)
+	(@HYPO=	tanks_equal)
+)
+
+(@RULE=	R31
+	(@LHS=
+		(=	((tank_P1.pressure)-(tank_P3.pressure))	(0.0))
+	)
+	(@HYPO=	tanks_equal)
+)
+
+(@RULE=	R34
+	(@LHS=
+		(Yes	(investigate_hypothesis))
+		(>	(n)	(0.0))
+	)
+	(@HYPO=	THERMAL_TRANSIENT_CONDITION)
+)
+
+(@RULE=	R33
+	(@LHS=
+		(Yes	(action_19))
+		(Yes	(tank_out_pressure_high))
+		(=	((tank_out_P4.pressure)-(tank_out_P3.pressure))	(0.0))
+	)
+	(@HYPO=	THERMAL_TRANSIENT_CONDITION)
+	(@RHS=
+		(Execute	("Message")	(@WAIT=TRUE;@STRING="@TEXT=*** THERM TRANS COND,\
+@OK";))
+		(Execute	("Message")	(@WAIT=TRUE;@STRING="@TEXT=*** CLOSE V16 24,\
+@OK";))
+	)
+)
+
+(@RULE=	R36
+	(@LHS=
+		(=	(task)	("TESTING"))
+	)
+	(@HYPO=	vradio)
+)
+
+(@RULE=	R35
+	(@LHS=
+		(=	(task)	("ATTACHING"))
+	)
+	(@HYPO=	vradio)
+)
+
+(@RULE=	R41
+	(@LHS=
+		(Yes	(action_4))
+		(No	(tanks_equal))
+	)
+	(@HYPO=	XDRC_FAILURE_OR_BIAS)
+	(@RHS=
+		(Execute	("Message")	(@WAIT=TRUE;@STRING="@TEXT=*** XDRC FAILURE OR BIAS,\
+@OK";))
+	)
+)
+
+(@RULE=	R40
+	(@LHS=
+		(Yes	(action_14))
+		(No	(tanks_equal))
+	)
+	(@HYPO=	XDRC_FAILURE_OR_BIAS)
+	(@RHS=
+		(Execute	("Message")	(@WAIT=TRUE;@STRING="@TEXT=*** XDRC FOB,\
+@OK";))
+	)
+)
+
+(@RULE=	R39
+	(@LHS=
+		(Yes	(investigate_hypothesis))
+		(>	(n)	(0.0))
+	)
+	(@HYPO=	XDRC_FAILURE_OR_BIAS)
+)
+
+(@RULE=	R38
+	(@LHS=
+		(Yes	(action_19))
+		(<>	((tank_out_P3.pressure)-(tank_out_P4.pressure))	(0.0))
+	)
+	(@HYPO=	XDRC_FAILURE_OR_BIAS)
+	(@RHS=
+		(Execute	("Message")	(@WAIT=TRUE;@STRING="@TEXT=*** XDRC FOB,\
+@OK";))
+		(Execute	("Message")	(@WAIT=TRUE;@STRING="@TEXT=*** OPEN V16 24,\
+@OK";))
+	)
+)
+
+(@RULE=	R37
+	(@LHS=
+		(Yes	(action_12))
+		(<>	((tank_P2.pressure)-(tank_P5.pressure))	(0.0))
+		(<>	((tank_P1.pressure)-(tank_P5.pressure))	(0.0))
+	)
+	(@HYPO=	XDRC_FAILURE_OR_BIAS)
+	(@RHS=
+		(Execute	("Message")	(@WAIT=TRUE;@STRING="@TEXT=*** XDRC FAILURE OR BIAS,\
+@OK";))
+	)
+)
+
+(@GLOBALS=
+	@INHVALUP=FALSE;
+	@INHVALDOWN=TRUE;
+	@INHOBJUP=FALSE;
+	@INHOBJDOWN=FALSE;
+	@INHCLASSUP=FALSE;
+	@INHCLASSDOWN=TRUE;
+	@INHBREADTH=TRUE;
+	@INHPARENT=FALSE;
+	@PWTRUE=TRUE;
+	@PWFALSE=TRUE;
+	@PWNOTKNOWN=TRUE;
+	@EXHBWRD=TRUE;
+	@PTGATES=TRUE;
+	@PFACTIONS=TRUE;
+	@SOURCESON=TRUE;
+	@CACTIONSON=TRUE;
+)
+#+end_example
+
+* Footnotes
+[fn:2] This Web page is actually exported from an org-mode file which /is/ the knowledge-base for a revisited NXP architecture. (See: [[https://github.com/CRTandKDU/cogarch/tree/main][Work in progress!]]) 
+
+[fn:1] Joëlle Coutaz. At the Confluence of Software Engineering and Human-Computer Interaction: A Personal Account. Bertrand Meyer. The French School of Programming, Springer International Publishing; Springer International Publishing, pp.89-122, 2024, ⟨10.1007/978-3-031-34518-0_5⟩. [[https://hal.science/hal-04726573v1][hal-04726573]]. 
