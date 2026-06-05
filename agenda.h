@@ -253,6 +253,8 @@ void engine_dsl_getter_compound( compound_rec_ptr compound, int *suspend );
 
 sign_rec_ptr agenda_get_allsigns();
 
+typedef sign_rec_ptr (*loadkb_parse_cb_t) (char *pw, compound_rec_ptr compound, sign_rec_ptr top );
+
 int		loadkb_file( const char *fn );
 void		loadkb_reset();
 sign_rec_ptr	loadkb_get_allsigns();

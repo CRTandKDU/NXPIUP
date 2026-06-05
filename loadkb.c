@@ -55,7 +55,24 @@ void repl_txt( char *s ){
 }
 
 #ifdef ENGINE_DSL_HOWERJFORTH
-sign_rec_ptr loadkb_parse( char *dsl_expr, compound_rec_ptr compound, sign_rec_ptr top ){
+static sign_rec_ptr loadkb_parse_cb( char *pw, compound_rec_ptr compound, sign_rec_ptr top ){
+  sign_rec_ptr lsign, newtop = top;
+  int r;
+  /* printf( "Found DSL-shared variable: %s\n", pw ); */
+  /* repl_log( pw ); */
+  lsign = sign_find( pw, top );
+  if( NULL == lsign ){
+    newtop = lsign = sign_pushnew( top, pw, 0, sizeof(void *), 0, sizeof(fwrd_rec_ptr) );
+    /* repl_log( "pushnew" ); */
+    lsign->val.type = _VAL_T_INT;
+    if( '$' == pw[0] ) lsign->val.type = _VAL_T_STR;
+  }
+  if( compound ) compound_DSLvar_pushnew( compound, lsign );
+  r = engine_dsl_DSLvar_declare( pw, lsign );
+  return newtop;
+}
+
+sign_rec_ptr loadkb_parse( char *dsl_expr, compound_rec_ptr compound, sign_rec_ptr top, loadkb_parse_cb_t f ){
   // Destroys dsl_expr and top
   const char *ws = " \t\x0d"; // Whitespace characters that separate tokens
   char *pw, *pnw;
@@ -79,19 +96,7 @@ sign_rec_ptr loadkb_parse( char *dsl_expr, compound_rec_ptr compound, sign_rec_p
     }
     /* repl_txt(pnw); */
     if( (0 == strcmp( pnw, "nxp@" )) || (0 == strcmp( pnw, "nxp!" )) ){
-      sign_rec_ptr lsign;
-      int r;
-      if(TRACE_ON) printf( "Found DSL-shared variable: %s\n", pw );
-      /* repl_log( pw ); */
-      lsign = sign_find( pw, top );
-      if( NULL == lsign ){
-	top = lsign = sign_pushnew( top, pw, 0, sizeof(void *), 0, sizeof(fwrd_rec_ptr) );
-	/* repl_log( "pushnew" ); */
-	lsign->val.type = _VAL_T_INT;
-	if( '$' == pw[0] ) lsign->val.type = _VAL_T_STR;
-      }
-      if( compound ) compound_DSLvar_pushnew( compound, lsign );
-      r = engine_dsl_DSLvar_declare( pw, lsign );
+      top = f( pw, compound, top );
     }
     pw = pnw;
 
@@ -256,7 +261,7 @@ int loadkb_file( const char *fn ){
 	  compound_DSL_set( lcompound, dsl_expr );
 	  // Parse DSL shared vars in source text
 #ifdef ENGINE_DSL
-	  KB_Signs = loadkb_parse( dsl_expr, lcompound, KB_Signs );
+	  KB_Signs = loadkb_parse( dsl_expr, lcompound, KB_Signs, loadkb_parse_cb );
 #endif
 	  rule_pushnewcond( lrule, (unsigned short)1, (sign_rec_ptr)lcompound );
 	}
@@ -298,7 +303,7 @@ int loadkb_file( const char *fn ){
 	  /* repl_log( dsl_expr ); */
 	  rule_pushnewrhs( lrule, dsl_expr );
 #ifdef ENGINE_DSL
-	  KB_Signs = loadkb_parse( dsl_expr, (compound_rec_ptr)0, KB_Signs );
+	  KB_Signs = loadkb_parse( dsl_expr, (compound_rec_ptr)0, KB_Signs, loadkb_parse_cb );
 #endif
 	}
 	break;

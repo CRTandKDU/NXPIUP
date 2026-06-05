@@ -329,8 +329,17 @@ void CanvasScrollbarTest(void)
   Ihandle *netw_compound = IupToggle( "Forward-expand DSL conditions", NULL );
   IupSetHandle( "netw_compound", netw_compound );
   IupSetCallback( netw_compound, "ACTION", (Icallback)netw_toggle_compound_cb );
-  Ihandle *hbox_params = IupHbox( netw_radio, netw_compound, NULL );
+  hbox_orientation = IupHbox( netw_compound, NULL );
+  /* IupSetAttribute( hbox_orientation, "ALIGNMENT", "ACENTER" ); */
+  IupSetAttribute( hbox_orientation, "EXPAND", "HORIZONTAL" );
+  IupSetAttribute( hbox_orientation, "MARGIN", "5x5" );
+  IupSetAttribute( hbox_orientation, "GAP", "10" );
+  
+  netw_frame = IupFrame( hbox_orientation );
+  IupSetAttribute( netw_frame, "TITLE", "Forward Links Details" );
+  Ihandle *hbox_params = IupHbox( netw_radio, netw_frame, NULL );
   IupSetAttribute( hbox_params, "ALIGNMENT", "ACENTER" );
+  IupSetAttribute( hbox_params, "NORMALIZESIZE", "VERTICAL" );
   IupSetAttribute( hbox_params, "EXPAND", "HORIZONTAL" );
   IupSetAttribute( hbox_params, "MARGIN", "5x5" );
   IupSetAttribute( hbox_params, "GAP", "10" );

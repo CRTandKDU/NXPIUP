@@ -115,7 +115,7 @@ void netw__forward_junction_expand( cdCanvas *canvas, netw_cell_rec_ptr cell,
   col_rec_ptr  head	= (col_rec_ptr) cdCanvasGetAttribute( canvas, "USERDATA" );
   col_rec_ptr  col1	= netw__col_get_create( canvas, cell->head->x - 1 );
   col_rec_ptr  col2	= netw__col_get_create( canvas, cell->head->x - 2 );
-  /* printf( "FWRD Junction expand %s\n", h->str ); */
+  printf( "FWRD Junction expand %s\n", h->str );
   if( 0 == junction->nright ){
     junction->nright = 1;
     junction->right = (netw_cell_rec_ptr *) malloc( sizeof(netw_cell_rec_ptr) );
@@ -127,8 +127,8 @@ void netw__forward_junction_expand( cdCanvas *canvas, netw_cell_rec_ptr cell,
     netw__col_append_cell( col2, chypo );
     *y2ptr += 1;
     junction->right[0] = chypo;
-    /* printf( "FWRD Added %s in %d, col=%d at y=%d\n", */
-    /* 	    h->str, junction->nright - 1, chypo->head->x, chypo->y ); */
+    printf( "FWRD Added %s in %d, col=%d at y=%d\n",
+	    h->str, junction->nright - 1, chypo->head->x, chypo->y );
   }
   else{
     // Is it already present?
@@ -142,7 +142,9 @@ void netw__forward_junction_expand( cdCanvas *canvas, netw_cell_rec_ptr cell,
     if( !found ){
       junction->nright += 1;
       junction->right = (netw_cell_rec_ptr *) realloc( junction->right, junction->nright*sizeof(netw_cell_rec_ptr) );
-      if( !junction->right ) /* printf( "*** ERROR reallocating\n\n" ); */
+      if( !junction->right ){
+	printf( "*** ERROR reallocating\n\n" );
+      }
       _NETW_NEWCELL( chypo );
       chypo->y			= *y2ptr + 1;
       chypo->head		= col2;
@@ -151,8 +153,8 @@ void netw__forward_junction_expand( cdCanvas *canvas, netw_cell_rec_ptr cell,
       netw__col_append_cell( col2, chypo );
       *y2ptr += 1;
       junction->right[ junction->nright - 1 ] = chypo;
-      /* printf( "FWRD Added %s in %d, col=%d at y=%d\n", */
-      /* 	      h->str, junction->nright - 1, chypo->head->x, chypo->y ); */
+      printf( "FWRD Added %s in %d, col=%d at y=%d\n",
+	      h->str, junction->nright - 1, chypo->head->x, chypo->y );
     }
   }
 }
