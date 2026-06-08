@@ -69,6 +69,9 @@ static void build_graph_cb(){
   rule_rec_ptr rule;
   cond_rec_ptr cond;
   fwrd_rec_ptr cfwrd, fwrd;
+  float w		= IupGetFloat( IupGetHandle( "layout_weight" ), "VALUE" );
+  double _BASEWEIGHT	= 1.0;
+  double _OVERLAYWEIGHT = _BASEWEIGHT * (2.*w + 1.);
   // All hypos to signs in their respective rules
   sign_rec_ptr compound, s, top = (sign_rec_ptr) loadkb_get_allhypos();
   s = top;
@@ -78,7 +81,7 @@ static void build_graph_cb(){
       for( j=0; j<rule->ngetters; j++ ){
 	cond = (cond_rec_ptr) rule->getters[j];
 	if( COMPOUND_MASK != (cond->sign->len_type & TYPE_MASK ) )
-	    nxpiup_layout_add_edge( s->str, cond->sign->str, k++, 1.0 );
+	    nxpiup_layout_add_edge( s->str, cond->sign->str, k++, _BASEWEIGHT );
       }
     }
     s = s->next;
@@ -91,14 +94,14 @@ static void build_graph_cb(){
       for( i=0; i<s->nsetters; i++ ){
 	fwrd = (fwrd_rec_ptr) s->setters[i];
 	if( fwrd->idx_cond >= 0 ){
-	  nxpiup_layout_add_edge( ((sign_rec_ptr) fwrd->rule->setters)->str, s->str, k++, 2.0 );
+	  nxpiup_layout_add_edge( ((sign_rec_ptr) fwrd->rule->setters)->str, s->str, k++, _OVERLAYWEIGHT );
 	}
 	else{
 	  compound = (sign_rec_ptr) fwrd->rule;
 	  for( j=0; j<compound->nsetters; j++ ){
 	    cfwrd = (fwrd_rec_ptr) compound->setters[j];
 	    if( cfwrd->idx_cond >= 0 ){
-	      nxpiup_layout_add_edge( ((sign_rec_ptr) cfwrd->rule->setters)->str, s->str, k++, 2.0 );
+	      nxpiup_layout_add_edge( ((sign_rec_ptr) cfwrd->rule->setters)->str, s->str, k++, _OVERLAYWEIGHT );
 	    }
 	  }
 	}
@@ -111,7 +114,7 @@ static void build_graph_cb(){
 int item_graph_cb(void){
   Ihandle *dlg = IupGetHandle( "graph" );
   if( !dlg )
-    dlg = nxpiup_layout_dlg( "220x220", build_graph_cb );
+    dlg = nxpiup_layout_dlg( "600x400", build_graph_cb );
   IupShowXY(dlg, IUP_CENTER, IUP_CENTER);
 
   return IUP_DEFAULT;

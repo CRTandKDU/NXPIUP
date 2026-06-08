@@ -194,9 +194,15 @@ int toggle_redraw(void)
   if( 0 == strcmp( "bykk", (char *) IupGetAttribute( ihalg, "VALUE" ) ) )
     layout_run_kk( (userdata->g), &(userdata->positions), (userdata->weights),
 		   (double) WORLD_W, (double) WORLD_H, layout_update_cb );
-  if( 0 == strcmp( "byfr", (char *) IupGetAttribute( ihalg, "VALUE" ) ) )
-    layout_run_fr( (userdata->g), &(userdata->positions), WORLD_H/10., (double) WORLD_W, (double) WORLD_H, layout_update_cb );
-
+  else if( 0 == strcmp( "byfr", (char *) IupGetAttribute( ihalg, "VALUE" ) ) )
+    layout_run_fr( (userdata->g), &(userdata->positions), WORLD_H/10.,
+		   (double) WORLD_W, (double) WORLD_H, layout_update_cb );
+  else if( 0 == strcmp( "byga", (char *) IupGetAttribute( ihalg, "VALUE" ) ) ){
+    layout_run_ga( (userdata->g), &(userdata->positions), 0,
+		   100. + 400. * IupGetFloat( IupGetHandle( "layout_radius" ), "VALUE" ),
+		   (double) WORLD_H, layout_update_cb );
+    // printf( "Gursoy-Atun r=%f\n", 100. + 200. * IupGetFloat( IupGetHandle( "layout_radius" ), "VALUE" ) );
+  }
   IupUpdate( ih );
   //
   return IUP_DEFAULT;
@@ -409,12 +415,29 @@ int byfr_cb( Ihandle *ih, int state ){
   return IUP_DEFAULT;
 }
 
+int byga_cb( Ihandle *ih, int state ){
+  return IUP_DEFAULT;
+}
+
+
+int ihweight_cb( Ihandle *ih ){
+  
+  return IUP_DEFAULT;
+}
+
+int ihradius_cb( Ihandle *ih ){
+  if( 0 == strcmp( "byga", (char *) IupGetAttribute( IupGetHandle( "layout_alg" ), "VALUE" ) ) )
+    toggle_redraw();
+  return IUP_DEFAULT;
+}
+
 Ihandle * nxpiup_layout_dlg( const char *size_str, nxp_graph_cb_t f ){
   Ihandle *cv    = IupCanvas(NULL);
   Ihandle *bt    = IupButton("Start/Stop", NULL);
 
   Ihandle *bykk = IupToggle( "K.-K.", NULL );
   Ihandle *byfr = IupToggle( "F.-R.", NULL );
+  Ihandle *byga = IupToggle( "G.-A.", NULL );
   IupSetHandle( "bykk", bykk );
   IupSetAttribute( bykk, "EXPAND", "HORIZONTAL" );
   IupSetCallback( bykk,  "ACTION", (Icallback) bykk_cb  );
@@ -423,7 +446,26 @@ Ihandle * nxpiup_layout_dlg( const char *size_str, nxp_graph_cb_t f ){
   IupSetAttribute( byfr, "EXPAND", "HORIZONTAL" );
   IupSetCallback( byfr,  "ACTION", (Icallback) byfr_cb  );
 
-  Ihandle *ihhbox = IupHbox( bt, bykk, byfr, NULL );
+  IupSetHandle( "byga", byga );
+  IupSetAttribute( byga, "EXPAND", "HORIZONTAL" );
+  IupSetCallback( byga,  "ACTION", (Icallback) byga_cb  );
+
+  Ihandle *ihweight = IupVal( "HORIZONTAL" );
+  IupSetHandle( "layout_weight", ihweight );
+  IupSetCallback( ihweight,  "VALUECHANGED_CB", (Icallback) ihweight_cb  );
+
+  Ihandle *ihradius = IupVal( "HORIZONTAL" );
+  IupSetHandle( "layout_radius", ihradius );
+  IupSetCallback( ihradius,  "VALUECHANGED_CB", (Icallback) ihradius_cb  );
+
+  Ihandle *aux;
+  Ihandle *ihhbox = IupHbox( bt, aux = IupFrame( IupHbox( bykk, ihweight, NULL ) ), NULL );
+  IupSetAttribute( aux, "TITLE", " Kamada-Kawai" );
+  IupAppend( ihhbox, aux = IupFrame( IupHbox( byfr, NULL ) ) );
+  IupSetAttribute( aux, "TITLE", "Fruchterman-Reingold" );
+  IupAppend( ihhbox, aux = IupFrame( IupHbox( byga, ihradius, NULL ) ) );
+  IupSetAttribute( aux, "TITLE", "Gürsoy-Atun" );
+  
   IupSetAttribute( ihhbox, "GAP", "15" );
   IupSetAttribute( ihhbox, "EXPAND", "HORIZONTAL" );
   Ihandle *ihframe = IupFrame( ihhbox );
@@ -448,8 +490,8 @@ Ihandle * nxpiup_layout_dlg( const char *size_str, nxp_graph_cb_t f ){
   IupSetCallback( cv, "ACTION",		(Icallback) redraw );
   IupSetHandle( "layout_cv", cv );
   
-  Ihandle *dlg   = IupDialog( IupVbox( cv, ihalg, NULL ) );
-  IupSetAttribute(dlg, "TITLE", "Redraw test");
+  Ihandle *dlg   = IupDialog( IupVbox( ihalg, cv, NULL ) );
+  IupSetAttribute(dlg, "TITLE", "Sign Map");
   IupSetHandle( "graph", dlg );
   IupMap(dlg);
   
@@ -468,6 +510,10 @@ Ihandle * nxpiup_layout_dlg( const char *size_str, nxp_graph_cb_t f ){
   IupSetHandle( "action_bt", bt );
   S_graph_cb = f;
   IupSetCallback(bt, "ACTION", (Icallback)toggle_redraw);
+
+  IupSetAttribute( ihweight, "VALUE", "0.5" );
+  IupSetAttribute( ihradius, "VALUE", "0.5" );
+
   //
   /* layout_enumerate_vertices( (userdata->g), (userdata->names), (userdata->positions), print_cb ); */
   //

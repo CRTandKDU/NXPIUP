@@ -8,6 +8,7 @@
 //           Andrew Lumsdaine
 #include <boost/graph/fruchterman_reingold.hpp>
 #include <boost/graph/kamada_kawai_spring_layout.hpp>
+#include <boost/graph/gursoy_atun_layout.hpp>
 #include <boost/graph/random_layout.hpp>
 #include <boost/graph/circle_layout.hpp>
 #include <boost/graph/adjacency_list.hpp>
@@ -144,12 +145,13 @@ void layout_add_edge( void *graph, void *labels, void *weights,
 // REDRAWING
 layout_update_cb_t S_cb = NULL;
 int S_iter		= 0;
+int S_iter_max          = 1000;
 
 bool kk_done( double delta_p, Vertex p, Graph g, bool maxp ){
   layout_tolerance< double > f;
   // printf( "Done %f, vertex=%s (max=%d)\n", delta_p,  (char *) get(vertex_name, g, p).c_str(), maxp );
-  S_cb( S_iter++, 100 );
-  return delta_p < 10. ? true : false ;
+  S_cb( S_iter++, 200 );
+  return (delta_p < 10.) || (S_iter > S_iter_max) ? true : false ;
 }
 
 void layout_run_kk( void *graph, void **pos, void * weights, double width, double height, layout_update_cb_t f ){
@@ -162,7 +164,8 @@ void layout_run_kk( void *graph, void **pos, void * weights, double width, doubl
 
   minstd_rand gen;
   topology_type topo(gen, -width / 2, -height / 2, width / 2, height / 2);
-  circle_graph_layout( *g, *position, (double) width / 2.0 );
+  // circle_graph_layout( *g, *position, (double) width / 2.0 );
+  random_graph_layout(*g, *position, topo);
   S_cb		= f;
   S_iter	= 0;
   WMap w_map = WMap( (*w).begin(), get( edge_index, *g ) );
@@ -191,6 +194,19 @@ void layout_run_fr( void *graph, void **pos, int iterations, double width, doubl
   // 		<< '\t' << (*position)[*vi][1] << std::endl;
   //   }
   
+}
+
+void layout_run_ga( void *graph, void **pos, int iterations, double radius, double height, layout_update_cb_t f ){
+  Graph *g			= (Graph *) graph;
+  PositionVec *position_vec	= new PositionVec(num_vertices(*g));
+  PositionMap *position		= new PositionMap((*position_vec).begin(), get(vertex_index, *g));
+  *pos = (void *) position;
+
+  minstd_rand gen;
+  // topology_type topo(gen, -width / 2, -height / 2, width / 2, height / 2);
+  circle_topology topo( gen, radius );
+  random_graph_layout(*g, *position, topo);
+  gursoy_atun_layout( *g, topo, *position );
 }
 
 void layout_enumerate_vertices( void *graph, void *labels, void *pos, layout_enumv_cb_t f ){
