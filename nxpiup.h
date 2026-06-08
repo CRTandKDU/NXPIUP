@@ -31,17 +31,18 @@ int  nxpiup_inagendap( sign_rec_ptr sign );
 int  item_volunteer_cb( void );
 int  item_suggest_cb( void );
 
-void nxpiup_dlgmenu( void );
-int  nxpiup_dlgloadkb( void );
-void nxpiup_dlgquestion( sign_rec_ptr, int );
-void nxpiup_dlgency( const char *, const char *, sign_rec_ptr );
-void nxpiup_dlgency_rules( const char *, const char *, rule_rec_ptr );
-void nxpiup_ency_update( Ihandle *, short );
-sign_rec_ptr  nxpiup_ency_selection( char * );
+void		nxpiup_dlgmenu( void );
+int		nxpiup_dlgloadkb( void );
+void		nxpiup_dlgquestion( sign_rec_ptr, int );
+void		nxpiup_dlgency( const char *, const char *, sign_rec_ptr );
+void		nxpiup_dlgency_rules( const char *, const char *, rule_rec_ptr );
+void		nxpiup_ency_update( Ihandle *, short );
+sign_rec_ptr	nxpiup_ency_selection( char * );
+void            nxpiup_netw_focus_hypo( hypo_rec_ptr hypo );
 
 typedef void (*nxp_graph_cb_t) ( void );
-Ihandle *nxpiup_layout_dlg( const char *, nxp_graph_cb_t );
-void nxpiup_layout_add_edge( char *, char *, int, double );
+Ihandle *	nxpiup_layout_dlg( const char *, nxp_graph_cb_t );
+void		nxpiup_layout_add_edge( char *, char *, int, double );
 
 #define NXPIUP_UPDATES   Ihandle *netw = IupGetHandle( "rule_network" ); \
   if( netw ) IupUpdate( netw );						\

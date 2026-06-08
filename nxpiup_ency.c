@@ -180,7 +180,7 @@ sign_rec_ptr nxpiup_ency_selection( char *view ){
 // Signs and Hypos Encyclopediae share a dialog template.
 // The Rules Encyclopedia has additional features and a separate dialog.
 
-int item_focus_hypo_cb( void ){
+void            nxpiup_netw_focus_hypo( hypo_rec_ptr hypo ){
   Ihandle *ih		= IupGetHandle( "rule_network" );
   if( !ih ){
     CanvasScrollbarTest();
@@ -188,7 +188,6 @@ int item_focus_hypo_cb( void ){
   }
   cdCanvas *canvas	= (cdCanvas*)IupGetAttribute( ih, "_CD_CANVAS" );
   col_rec_ptr col	= (col_rec_ptr) cdCanvasGetAttribute( canvas, "USERDATA" ); 
-  hypo_rec_ptr hypo     = (hypo_rec_ptr) nxpiup_ency_selection( (char *) NXPIUP_ENCY_HYPOS_VIEW );
   netw_cell_rec_ptr cptr;
   //
   if( col ) netw_free( canvas );
@@ -210,7 +209,13 @@ int item_focus_hypo_cb( void ){
   netw__expand_backward( canvas, col->first, WORLD_W, WORLD_H, NETW_RL );
   //
   IupUpdate( ih );
+}
 
+int item_focus_hypo_cb( void ){
+  hypo_rec_ptr hypo     = (hypo_rec_ptr) nxpiup_ency_selection( (char *) NXPIUP_ENCY_HYPOS_VIEW );
+  if( hypo ){
+    nxpiup_netw_focus_hypo( hypo );
+  }
   return IUP_DEFAULT;
 }
 
