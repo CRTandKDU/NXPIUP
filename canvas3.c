@@ -326,7 +326,7 @@ void CanvasScrollbarTest(void)
   Ihandle *netw_radio = IupRadio( netw_frame );
   IupSetHandle( "netw_radio", netw_radio );
 
-  Ihandle *netw_compound = IupToggle( "Forward-expand DSL conditions", NULL );
+  Ihandle *netw_compound = IupToggle( "Forward-expand DSL conditions and RHSes", NULL );
   IupSetHandle( "netw_compound", netw_compound );
   IupSetCallback( netw_compound, "ACTION", (Icallback)netw_toggle_compound_cb );
   hbox_orientation = IupHbox( netw_compound, NULL );

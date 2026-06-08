@@ -55,7 +55,7 @@ void repl_txt( char *s ){
 }
 
 #ifdef ENGINE_DSL_HOWERJFORTH
-static sign_rec_ptr loadkb_parse_cb( char *pw, compound_rec_ptr compound, sign_rec_ptr top ){
+sign_rec_ptr loadkb_parse_cb( char *pw, compound_rec_ptr compound, sign_rec_ptr top ){
   sign_rec_ptr lsign, newtop = top;
   int r;
   /* printf( "Found DSL-shared variable: %s\n", pw ); */

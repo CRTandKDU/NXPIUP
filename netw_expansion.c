@@ -22,6 +22,43 @@
 				 /* &&							\ */
 				 /* COMPOUND_MASK != (((sign_rec_ptr) (cell)->client_data)->len_type & TYPE_MASK)) */
 
+/*
+Intensive reworking and factoring of the forward linking
+representation in the Rule Network.  One overlay over the "boolean"
+rule network is introduced, in relation with the DSL used in conds and
+rhses.
+
+In the base boolean rule networks backward links (full lines) appear:
+
+  - From hypothesis to its rules,
+  - From rule to all its conditions and rhses.
+  - From boolean conditions (YES hypo, NO hypo) on hypotheses to
+    mentioned hypothesis.
+
+and forward links (dotted lines) appear:
+
+  - From hypothesis to forwarded hypotheses,
+  - From boolean condition to forwarded hypotheses.
+
+This constitutes the base boolean rule network.
+
+When the overlay is visible, according to the parameter checkbox,
+additional forward linking information appears:
+
+  - Junction points are annotated with the sign or hypo at the source
+    of the forward link,
+  - Additional forward links from DSL conditions and rhses to the
+    forwarded hypotheses are displayed.
+
+Backward links are unaffected by this overlay.
+
+In both base and overlay, clicking or shify-clicking on a node
+recursively removes the backward or forward links, respectively.
+*/
+
+/*-----------------------------------------------------------------
+  FORWARD LINKING
+  ---------------------------------------------------------------*/  
 
 netw_cell_rec_ptr netw__forward_junction( cdCanvas *canvas, netw_cell_rec_ptr cell,
 					  double WORLD_W, double WORLD_H, unsigned short orientation,
@@ -194,6 +231,40 @@ void netw__forward_compound( cdCanvas *canvas, netw_cell_rec_ptr cell,
   }
 }
 
+
+typedef struct netw_exp_context_rec{
+  cdCanvas *canvas;
+  double world_w;
+  double world_h;
+  unsigned short orientation;
+  netw_cell_rec_ptr cell;
+} *netw_exp_context_rec_ptr;
+
+sign_rec_ptr forward_rhs_cb (char *pw, compound_rec_ptr compound, sign_rec_ptr top ){
+  netw_exp_context_rec_ptr context = (netw_exp_context_rec_ptr) compound;
+  sign_rec_ptr s = sign_find( pw, top );
+  if( s ){
+    netw__forward_dslvar( context->canvas, context->cell, context->world_w, context->world_h, context->orientation, s );
+  }
+  return NULL;
+}
+
+void netw__forward_rhs( cdCanvas *canvas, netw_cell_rec_ptr cell,
+			double WORLD_W, double WORLD_H, unsigned short orientation ){
+  struct netw_exp_context_rec context;
+  context.canvas        = canvas;
+  context.world_w	= WORLD_W;
+  context.world_h	= WORLD_H;
+  context.orientation	= orientation;
+  context.cell		= cell;
+  sign_rec_ptr ignore;
+  char buf[ _NETW_TEMP_BUFSIZE + _NETW_TEMP_BUFSIZE ] = {0};
+  sprintf( buf, (char *) cell->client_data );
+  ignore = loadkb_parse( buf, (compound_rec_ptr) &context, loadkb_get_allsigns(), forward_rhs_cb );
+  // Mark as expanded
+  _EXP_LR_SET(cell);
+}
+
 void netw__forward_single( cdCanvas *canvas, netw_cell_rec_ptr cell,
 			   double WORLD_W, double WORLD_H, unsigned short orientation ){
   short i, j;
@@ -234,6 +305,10 @@ void netw__expand_forward(  cdCanvas *canvas, netw_cell_rec_ptr cell,
   // Mark as expanded
   _EXP_LR_SET(cell);
 }
+
+/*-----------------------------------------------------------------
+  BACKWARD LINKING
+  ---------------------------------------------------------------*/  
 
 void netw__useupper( int z, int *y1, int *y2 ){
   /* printf("\tUPPER z=%d, y1=%d, y2=%d\n", z, *y1, *y2 ); */
@@ -407,6 +482,10 @@ void netw__expand_backward(  cdCanvas *canvas, netw_cell_rec_ptr cell,
   _EXP_RL_SET(cell);
 }
 
+/*-----------------------------------------------------------------
+  REMOVING LINKING
+  ---------------------------------------------------------------*/  
+
 void netw__recursive_remove_forward( cdCanvas *canvas, netw_cell_rec_ptr cell, unsigned short orientation ){
   short i, j;
   netw_cell_rec_ptr junction, c;
@@ -496,12 +575,17 @@ void netw__toggle_expand( cdCanvas *canvas, netw_cell_rec_ptr cell, int shifted,
       // Forward chaining
       if( _EXP_LR_P(cell) ){
 	// TODO: (recursive?) remove
-	if( NETW_BOOLEAN_SIGN( cell ) )
+	if( NETW_BOOLEAN_SIGN( cell ) || ( cell->client_data_t == _NETW_STR_T ) )
 	  netw__recursive_remove_forward( canvas, cell, orientation );
       }
       else{
 	if( NETW_BOOLEAN_SIGN( cell ) )
 	  netw__expand_forward( canvas, cell, WORLD_W, WORLD_H, orientation );
+	else if( cell->client_data_t == _NETW_STR_T ){
+	  char *param = IupGetAttribute( IupGetHandle( "netw_compound" ), "VALUE" );
+	  if( 0 == strcmp( param, "ON" ) )
+	    netw__forward_rhs( canvas, cell, WORLD_W, WORLD_H, orientation );
+	}
       }
     }
     break;

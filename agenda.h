@@ -255,6 +255,7 @@ sign_rec_ptr agenda_get_allsigns();
 
 typedef sign_rec_ptr (*loadkb_parse_cb_t) (char *pw, compound_rec_ptr compound, sign_rec_ptr top );
 
+sign_rec_ptr    loadkb_parse( char *dsl_expr, compound_rec_ptr compound, sign_rec_ptr top, loadkb_parse_cb_t f );
 int		loadkb_file( const char *fn );
 void		loadkb_reset();
 sign_rec_ptr	loadkb_get_allsigns();
