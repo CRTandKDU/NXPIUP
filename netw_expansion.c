@@ -297,8 +297,17 @@ void netw__expand_forward(  cdCanvas *canvas, netw_cell_rec_ptr cell,
   if( cell->head->x <= 2  )
     return;
   //
-  if( COMPOUND_MASK != (sign->len_type & TYPE_MASK) )
-    netw__forward_single( canvas, cell, WORLD_W, WORLD_H, orientation );
+  if( COMPOUND_MASK != (sign->len_type & TYPE_MASK) ){
+    // Not a compound condition: either a YES/NO condition, a focused-on hypo, or a focused-on sign.
+    switch( (sign->len_type & TYPE_MASK) ){
+    case HYPO_MASK:
+      netw__forward_single( canvas, cell, WORLD_W, WORLD_H, orientation );
+      break;
+    case SIGN_MASK:
+      netw__forward_dslvar( canvas, cell, WORLD_W, WORLD_H, orientation, sign );
+      break;
+    }
+  }
   else{
     netw__forward_compound( canvas, cell, WORLD_W, WORLD_H, orientation );
   }

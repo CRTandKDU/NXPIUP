@@ -64,19 +64,26 @@ void netw__redraw_onscale( cdCanvas *canvas, int scale, double WORLD_W, double W
 	  nxpiup_inagendap( (sign_rec_ptr) cell->client_data );
 	cdCanvasFont( canvas, NULL,  current ? CD_BOLD : CD_PLAIN, 0 );
 	if( !current &&
-	    _KNOWN      == ((sign_rec_ptr) cell->client_data)->val.status &&
-	    _VAL_T_BOOL == ((sign_rec_ptr) cell->client_data)->val.type ) {
-	  text_color = cdCanvasForeground( canvas,
-					   _FALSE == ((sign_rec_ptr) cell->client_data)->val.val_bool ?
-					   CD_RED :
-					   CD_GREEN );
+	    _KNOWN      == ((sign_rec_ptr) cell->client_data)->val.status ) {
+	  switch( ((sign_rec_ptr) cell->client_data)->val.type ){
+	  case _VAL_T_BOOL:
+	    text_color = cdCanvasForeground( canvas,
+					     _FALSE == ((sign_rec_ptr) cell->client_data)->val.val_bool ?
+					     S_NETW_COLOR_FALSE :
+					     S_NETW_COLOR_TRUE );
+	    break;
+	  case _VAL_T_FLOAT:
+	  case _VAL_T_INT:
+	  case _VAL_T_STR:
+	    text_color = cdCanvasForeground( canvas, S_NETW_COLOR_KNOWN );
+	    break;
+	  }
 	}
 
 	cdCanvasText( canvas, xv, yv, buf );
 
 	if( !current &&
-	   _KNOWN      == ((sign_rec_ptr) cell->client_data)->val.status &&
-	    _VAL_T_BOOL == ((sign_rec_ptr) cell->client_data)->val.type ){
+	   _KNOWN      == ((sign_rec_ptr) cell->client_data)->val.status ){
 	  text_color = cdCanvasForeground( canvas, text_color );
 	}
 	cdCanvasFont( canvas, NULL, CD_PLAIN, 0 );

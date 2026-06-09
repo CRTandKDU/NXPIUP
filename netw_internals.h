@@ -21,6 +21,12 @@
 #define _NETW_INFINITY 100000
 #define _NETW_TEMP_BUFSIZE 64
 
+static long int S_NETW_COLOR_TRUE	= CD_GREEN;
+static long int S_NETW_COLOR_FALSE	= CD_RED;
+static long int S_NETW_COLOR_UNKNOWN	= CD_BLACK;
+// No distinction on type of DSL variable: INT, STR, or FLOAT (NIY).
+static long int S_NETW_COLOR_KNOWN	= CD_BLUE;
+
 // Utilities: node labels, column/cell management
 void		netw__trace( col_rec_ptr );
 int		netw__trim( const char * , cdCanvas * );
@@ -45,5 +51,7 @@ void netw__toggle_expand( cdCanvas *, netw_cell_rec_ptr, int,
 
 // Redrawing at scale
 void netw__redraw_onscale( cdCanvas *, int, double, double, unsigned short );
+
+void netw_colors_default();
 
 #endif

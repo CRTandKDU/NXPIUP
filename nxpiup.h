@@ -38,7 +38,7 @@ void		nxpiup_dlgency( const char *, const char *, sign_rec_ptr );
 void		nxpiup_dlgency_rules( const char *, const char *, rule_rec_ptr );
 void		nxpiup_ency_update( Ihandle *, short );
 sign_rec_ptr	nxpiup_ency_selection( char * );
-void            nxpiup_netw_focus_hypo( hypo_rec_ptr hypo );
+void            nxpiup_netw_focus_sign( sign_rec_ptr, int );
 
 typedef void (*nxp_graph_cb_t) ( void );
 Ihandle *	nxpiup_layout_dlg( const char *, nxp_graph_cb_t );

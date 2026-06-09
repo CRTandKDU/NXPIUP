@@ -1,3 +1,8 @@
+/**
+ * canvas3.c -- NXP Architecture 40y -- Simulator entry point
+ *
+ * Written on 2026-06-08.
+ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>

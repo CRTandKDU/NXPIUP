@@ -132,6 +132,13 @@ int item_open_cb( void ){
   return IUP_DEFAULT;
 }
 
+int item_reset_cb( void ){
+  engine_reset( repl_getState() );
+  repl_log( "[SESSION] Reset\n" );
+  NXPIUP_UPDATES;
+  return IUP_DEFAULT;
+}
+
 int item_volunteer_cb( void ){
   sign_rec_ptr sign = nxpiup_ency_selection( (char *) NXPIUP_ENCY_SIGNS_VIEW );
   if( sign ){
@@ -216,6 +223,7 @@ void nxpiup_dlgmenu( void ){
   IupSetCallback(item_volunteer, "ACTION", (Icallback)item_volunteer_cb);
   item_reset		= IupItem ("Reset", NULL);
   IupSetAttribute(item_reset, "KEY", "Z");
+  IupSetCallback(item_reset, "ACTION", (Icallback)item_reset_cb);
   item_agenda		= IupItem ("Agenda", NULL);
   IupSetAttribute(item_agenda, "KEY", "A");
   item_knowcess		= IupItem ("Knowcess", NULL);

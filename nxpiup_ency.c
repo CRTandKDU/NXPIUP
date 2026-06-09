@@ -20,9 +20,9 @@
 #include "netw.h"
 #include "netw_internals.h"
 
-#define NXPIUP_RED	"255 0 0"
-#define NXPIUP_GREEN	"0 255 0"
-#define NXPIUP_BLUE	"0 0 255"
+/* #define NXPIUP_RED	"255 0 0" */
+/* #define NXPIUP_GREEN	"0 255 0" */
+/* #define NXPIUP_BLUE	"0 0 255" */
 
 #define NXPIUP_UNKNOWN		"Unknown"
 #define NXPIUP_KNOWN		"Known"
@@ -74,55 +74,33 @@ void nxpiup_ency__freerec( ency_rec_ptr userdata ){
 //   - Unknown, in Agenda: bold style
 //   - Unknown: IUP default
 
-Ihandle *nxpiup_ency__newtags( const char *fgcolor, const char *weight ){
+Ihandle *nxpiup_ency__newtags( long int color, const char *weight ){
+  char fgcolor[12] = {0};
   Ihandle *ftag = IupUser();
   IupSetAttribute(ftag, "ALIGNMENT", "CENTER");
   IupSetAttribute(ftag, "SPACEAFTER", "10");
   IupSetAttribute(ftag, "FONTSIZE", "12");
   IupSetAttribute(ftag, "SELECTION", "1,1:1,48");
-  if( fgcolor ) IupSetAttribute(ftag, "FGCOLOR", fgcolor );
+  if( color ){
+    sprintf( fgcolor, "%d %d %d", cdRed( color ), cdGreen( color ), cdBlue( color ) );
+    IupSetAttribute(ftag, "FGCOLOR", fgcolor );
+  }
   if( weight  ) IupSetAttribute(ftag, "WEIGHT", weight );
   return ftag;
 }
 
-void nxpiup_ency__fgcolor( sign_rec_ptr sign, char *scolor ){
-  struct val_rec val = sign->val;
-  if( _UNKNOWN == val.status ){
-    strcpy( scolor, IupGetGlobal( "DLGFGCOLOR" ) );
-    return;
-  }
-  //
-  switch( val.type ){
-  case _VAL_T_BOOL:
-    strcpy( scolor, (_FALSE == val.val_bool) ? NXPIUP_RED : NXPIUP_GREEN );
-    break;
-    
-  case _VAL_T_INT:
-    strcpy( scolor, NXPIUP_BLUE );
-    break;
-    
-  case _VAL_T_FLOAT:
-     break;
-     
-  case _VAL_T_STR:
-    if( val.valptr )
-      strcpy( scolor, NXPIUP_BLUE );
-    break;
-  }
-  return;
-}
 
 long int nxpiup_ency__textcolor( sign_rec_ptr sign ){
-  long int text_color = CD_BLACK;
+  long int text_color = S_NETW_COLOR_UNKNOWN;
   struct val_rec val = sign->val;
   if( _KNOWN == val.status ){
     switch( val.type ){
     case _VAL_T_BOOL:
-      text_color = (_FALSE == val.val_bool) ? CD_RED : CD_GREEN;
+      text_color = (_FALSE == val.val_bool) ? S_NETW_COLOR_FALSE : S_NETW_COLOR_TRUE;
       break;
       
     case _VAL_T_INT:
-      text_color = CD_BLUE;
+      text_color = S_NETW_COLOR_KNOWN;
       break;
       
     case _VAL_T_FLOAT:
@@ -130,11 +108,17 @@ long int nxpiup_ency__textcolor( sign_rec_ptr sign ){
       
     case _VAL_T_STR:
       if( val.valptr )
-	text_color = CD_BLUE;
+	text_color = S_NETW_COLOR_KNOWN;
       break;
     }
   }
   return text_color;
+}
+
+void nxpiup_ency__fgcolor( sign_rec_ptr sign, char *scolor ){
+  long int color = nxpiup_ency__textcolor( sign );
+  sprintf( scolor, "%d %d %d", cdRed( color ), cdGreen( color ), cdBlue( color ) );
+  return;
 }
 
 void nxpiup_ency__valuestr( sign_rec_ptr sign, char *svalue ){
@@ -179,13 +163,17 @@ sign_rec_ptr nxpiup_ency_selection( char *view ){
 // -------------------------------------------------------------------------------
 // Signs and Hypos Encyclopediae share a dialog template.
 // The Rules Encyclopedia has additional features and a separate dialog.
-
-void            nxpiup_netw_focus_hypo( hypo_rec_ptr hypo ){
+Ihandle *nxpiup_netw__get_rn_or_create(){
   Ihandle *ih		= IupGetHandle( "rule_network" );
   if( !ih ){
     CanvasScrollbarTest();
     ih = IupGetHandle( "rule_network" );
   }
+  return ih;
+}
+
+void            nxpiup_netw_focus_sign( sign_rec_ptr hypo, int hypo_p ){
+  Ihandle *ih           = nxpiup_netw__get_rn_or_create();
   cdCanvas *canvas	= (cdCanvas*)IupGetAttribute( ih, "_CD_CANVAS" );
   col_rec_ptr col	= (col_rec_ptr) cdCanvasGetAttribute( canvas, "USERDATA" ); 
   netw_cell_rec_ptr cptr;
@@ -206,7 +194,13 @@ void            nxpiup_netw_focus_hypo( hypo_rec_ptr hypo ){
   printf("INITFILLALL i=%d, inc=%d\n", 0, inc );
   netw__adjust_col_vert( col->first, inc );
   //
-  netw__expand_backward( canvas, col->first, WORLD_W, WORLD_H, NETW_RL );
+  if( hypo_p ){
+    netw__expand_backward( canvas, col->first, WORLD_W, WORLD_H, NETW_RL );
+  }
+  else{
+    IupSetAttribute( IupGetHandle( "netw_compound" ), "VALUE", "ON" );
+    netw__expand_forward( canvas, col->first, WORLD_W, WORLD_H, NETW_RL );
+  }
   //
   IupUpdate( ih );
 }
@@ -214,17 +208,16 @@ void            nxpiup_netw_focus_hypo( hypo_rec_ptr hypo ){
 int item_focus_hypo_cb( void ){
   hypo_rec_ptr hypo     = (hypo_rec_ptr) nxpiup_ency_selection( (char *) NXPIUP_ENCY_HYPOS_VIEW );
   if( hypo ){
-    nxpiup_netw_focus_hypo( hypo );
+    nxpiup_netw_focus_sign( hypo, 1 );
   }
   return IUP_DEFAULT;
 }
 
 int item_focus_sign_cb( void ){
-  Ihandle *ih		= IupGetHandle( "rule_network" );
-  cdCanvas *canvas	= (cdCanvas*)IupGetAttribute( ih, "_CD_CANVAS" );
-  col_rec_ptr col	= (col_rec_ptr) cdCanvasGetAttribute( canvas, "USERDATA" ); 
-  if( col ) netw_free( canvas );
-  IupUpdate( ih );
+  sign_rec_ptr sign     = (sign_rec_ptr) nxpiup_ency_selection( (char *) NXPIUP_ENCY_SIGNS_VIEW );
+  if( sign ){
+    nxpiup_netw_focus_sign( sign, 0 );
+  }
   return IUP_DEFAULT;
 }
 
@@ -278,7 +271,7 @@ void nxpiup_dlgency( const char *ency_title, const char *ency_handle, sign_rec_p
     Ihandle *encyh = IupFlatList();
     IupSetAttribute( encyh, "USERDATA", (char *)userdata );
     IupSetCallback( encyh, "DESTROY_CB", (Icallback) ency_destroy_cb );
-    IupSetAttribute( encyh, "SIZE", "420*400" );
+    /* IupSetAttribute( encyh, "SIZE", "420*400" ); */
     IupSetAttribute( encyh, "FLATSCROLLBAR", "VERTICAL" );
     IupSetAttribute( encyh, "ALIGNMENT", "ALEFT:ACENTER" );
     IupSetAttribute( encyh, "EXPAND", "YES" );
@@ -320,6 +313,7 @@ void nxpiup_dlgency( const char *ency_title, const char *ency_handle, sign_rec_p
     dlg = IupDialog( ency_vbox );
     sprintf( buf, "Encyclopedia %s", ency_title );
     IupSetAttribute( dlg, "TITLE", buf );
+    IupSetAttribute( dlg, "SIZE", "HALFxHALF" );
     IupSetAttribute( dlg, "EXPANDCHILDREN", "YES" );
     IupSetAttribute( dlg, "MENU", "local_menu" );
     IupSetHandle( ency_handle, dlg );
@@ -392,28 +386,31 @@ void nxpiup_ency__logrule( Ihandle *ih, int id ){
   if( _KNOWN == userdata->seq[ id-1 ]->val.status  &&
       _VAL_T_BOOL == userdata->seq[ id-1 ]->val.type ){
     Ihandle *ftag = nxpiup_ency__newtags((_FALSE == userdata->seq[ id-1 ]->val.val_bool) ?
-					 (char *) NXPIUP_RED : (char *) NXPIUP_GREEN,
+					 S_NETW_COLOR_FALSE : S_NETW_COLOR_TRUE,
 					 NULL );
     IupSetAttribute( ih, "ADDFORMATTAG_HANDLE", (char *) ftag );
   }
   else if ( nxpiup_inagendap( (sign_rec_ptr) userdata->seq[ id-1 ]->setters ) ){
-    Ihandle *ftag = nxpiup_ency__newtags(NULL, "BOLD" );
+    Ihandle *ftag = nxpiup_ency__newtags( 0L, "BOLD" );
     IupSetAttribute( ih, "ADDFORMATTAG_HANDLE", (char *) ftag );
   }
   else{
-    Ihandle *ftag = nxpiup_ency__newtags(NULL, NULL );
+    Ihandle *ftag = nxpiup_ency__newtags( 0L, NULL );
     IupSetAttribute( ih, "ADDFORMATTAG_HANDLE", (char *) ftag );
   }
   // Formatting conditions
   cond_rec_ptr cond;
   Ihandle *ftag;
+  long int color;
   for( i=0; i<userdata->seq[ id-1 ]->ngetters; i++ ){
     cond = (cond_rec_ptr) userdata->seq[ id-1 ]->getters[i];
     if( _TRUE == cond->val || _FALSE == cond->val ){
       ftag = IupUser();
       sprintf( buf, "%d,1:%d,4", 3+i, 3+i );
       IupSetAttribute(ftag, "SELECTION", buf);
-      IupSetAttribute(ftag, "FGCOLOR", _FALSE == cond->val ? NXPIUP_RED : NXPIUP_GREEN );
+      color = (_FALSE == cond->val) ? S_NETW_COLOR_FALSE : S_NETW_COLOR_TRUE;
+      sprintf( val, "%d %d %d", cdRed( color ), cdGreen( color ), cdBlue( color ) );
+      IupSetAttribute(ftag, "FGCOLOR", val );
       IupSetAttribute( ih, "ADDFORMATTAG_HANDLE", (char *) ftag );
     }
   }  

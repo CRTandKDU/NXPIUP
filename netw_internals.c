@@ -203,12 +203,17 @@ void netw__text( cdCanvas *canvas, netw_cell_rec_ptr cell, char *buf, int *bufsi
   case _NETW_SIGN_NO_T:
     s = (sign_rec_ptr) cell->client_data;
     if( COMPOUND_MASK == (s->len_type & TYPE_MASK) ){
-      char *c = ((compound_rec_ptr) s)->dsl_expression;
-      for( i=0; i<_NETW_TEMP_BUFSIZE; i++ ){
-	buf[i]=c[i];
-	if( 0 == c[i] || '\n' == c[i] ){
-	  buf[i] = 0x00;
-	  break;
+      if( compound_p ){
+	sprintf( buf, "%s", s->str );
+      }
+      else{
+	char *c = ((compound_rec_ptr) s)->dsl_expression;
+	for( i=0; i<_NETW_TEMP_BUFSIZE; i++ ){
+	  buf[i]=c[i];
+	  if( 0 == c[i] || '\n' == c[i] ){
+	    buf[i] = 0x00;
+	    break;
+	  }
 	}
       }
     }
@@ -267,4 +272,12 @@ void netw_adjust_horz( col_rec_ptr col, int inc ){
 
 void netw_get_cell_size( int *w, int *h ){
   *w = CELL_W; *h = CELL_H;
+}
+
+void netw_colors_default(){
+  S_NETW_COLOR_TRUE =	CD_GREEN;
+  S_NETW_COLOR_FALSE =	CD_RED;
+  S_NETW_COLOR_UNKNOWN =	CD_BLACK;
+  // No distinction on type of DSL variable: INT, STR, or FLOAT (NIY).
+  S_NETW_COLOR_KNOWN =	CD_BLUE;
 }

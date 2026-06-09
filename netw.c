@@ -180,8 +180,8 @@ void netw_redrawkb( cdCanvas *canvas, int scale, double WORLD_W, double WORLD_H,
 		_VAL_T_BOOL == ((sign_rec_ptr) cell->client_data)->val.type ) {
 	      text_color = cdCanvasForeground( canvas,
 					       _FALSE == ((sign_rec_ptr) cell->client_data)->val.val_bool ?
-					       CD_RED :
-					       CD_GREEN );
+					       S_NETW_COLOR_FALSE :
+					       S_NETW_COLOR_TRUE );
 	      cdCanvasBox(canvas, xmin + xw, xmax - xw, ymin + yh , ymax - yh );
 	      text_color = cdCanvasForeground( canvas, text_color );
 	    }
