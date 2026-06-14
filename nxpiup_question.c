@@ -104,6 +104,37 @@ int toggle_default_cb( Ihandle *ih ){
   return IUP_DEFAULT;
 }
 
+int qitem_web_cb( Ihandle *ih ){
+  char buf[ NXPIUP_TEMP_BUFSIZE ];
+  sign_rec_ptr sign = (sign_rec_ptr) IupGetAttribute( ih, "USERDATA" );
+  if( sign ){
+    sprintf( buf, "cygstart %s", nxp_hash_get( sign->str, (char *) "URL" ) );
+    printf( "WEB: %s\n", buf );
+    system( buf );
+  }
+  return IUP_DEFAULT;
+}
+
+int qitem_info_cb( Ihandle *ih ){
+  Ihandle *qinfo;
+  sign_rec_ptr sign = (sign_rec_ptr) IupGetAttribute( ih, "USERDATA" );
+  if( sign ){
+    qinfo = IupGetHandle( "qinfo" );
+    IupSetAttribute( qinfo, "VALUE", (char *) nxp_hash_get( sign->str, (char *) "INFO" ) );
+    qinfo = IupGetHandle( "qinfovbox" );
+    IupSetAttribute( qinfo, "VISIBLE", "YES" );
+  }
+  return IUP_DEFAULT;
+}
+
+int qitem_focus_cb( Ihandle *ih ){
+  sign_rec_ptr sign = (sign_rec_ptr) IupGetAttribute( ih, "USERDATA" );
+  if( sign ){
+    nxpiup_netw_focus_sign( sign, 0 );
+  }
+  return IUP_DEFAULT;
+}
+
 Ihandle *nxpiup_question__generic( char *buf, sign_rec_ptr sign, int q_type ){
   Ihandle *qlabel,
     *qtext,
@@ -175,19 +206,64 @@ Ihandle *nxpiup_question__generic( char *buf, sign_rec_ptr sign, int q_type ){
   IupSetAttribute( qtext_box, "GAP", "20" );
   IupSetAttribute( qtext_box, "MARGIN", "20x20" );
 
+  Ihandle *qinfo = IupText( NULL );
+  IupSetAttribute( qinfo, "SIZE", "280x" );
+  IupSetAttribute( qinfo, "MULTILINE", "YES" );
+  IupSetAttribute( qinfo, "VISIBLELINES", "5" );
+  IupSetHandle( "qinfo", qinfo );
+  Ihandle *info_frame = IupFrame( qinfo );
+  IupSetAttribute( info_frame, "TITLE", "Info" );
+  IupSetAttribute( info_frame, "EXPAND", "YES" );
+  Ihandle *info_vbox = IupVbox( info_frame, NULL );
+  IupSetAttribute( info_vbox, "MARGIN", "5x5" );
+  IupSetAttribute( info_vbox, "EXPANDCHILDREN", "YES" );
+  IupSetAttribute( info_vbox, "ALIGNMENT", "ACENTER" );
+  IupSetAttribute( info_vbox, "VISIBLE", "NO" );
+  IupSetHandle( "qinfovbox", info_vbox );
+
   //
-  Ihandle *qvbox = IupVbox( qlabel, qtext_box, NULL );
+  Ihandle *qvbox = IupVbox( qlabel, qtext_box, info_vbox, NULL );
   IupSetAttribute( qvbox, "EXPANDCHILDREN", "YES" );
+  IupSetAttribute( qvbox, "ALIGNMENT", "ACENTER" );
+
+
+  Ihandle *q_item_focus = IupItem ("Focus Network", NULL);
+  Ihandle *q_item_web   = IupItem ("Web", NULL);
+  Ihandle *q_item_info  = IupItem ("Info", NULL);
+  IupSetAttribute( q_item_focus, "USERDATA", (char *) sign );
+  IupSetCallback( q_item_focus, "ACTION", (Icallback) qitem_focus_cb );
+  IupSetAttribute( q_item_web, "USERDATA", (char *) sign );
+  IupSetCallback( q_item_web, "ACTION", (Icallback) qitem_web_cb );
+  IupSetAttribute( q_item_info, "USERDATA", (char *) sign );
+  IupSetCallback( q_item_info, "ACTION", (Icallback) qitem_info_cb );
+  Ihandle *local_menu = IupMenu( q_item_focus, q_item_web, q_item_info, NULL );
+  IupSetHandle( "qlocal_menu", local_menu );
 
   dlg = IupDialog( qvbox  );
   IupSetAttributes( dlg, "EXPAND = YES, TITLE = Question, RESIZE = NO" );
-  IupSetAttributes( dlg, "MENUBOX = NO, MAXBOX = NO, MINBOX = NO" );
+  IupSetAttributes( dlg, "MAXBOX = NO, MINBOX = NO" );
   IupSetAttribute( dlg, "SIZE", "300xQUARTER" );
+  IupSetAttribute( dlg, "MENU", "qlocal_menu" );
   IupSetHandle( QUESTION_HANDLE, dlg );
 
   IupMap( dlg );
 
+  // Value-dependent visibility
   int n;
+  if( n = nxp_hash_exists( sign->str, (char *) "URL" ) ){
+    IupSetAttribute( q_item_web, "ACTIVE", "YES" );
+  }
+  else{
+    IupSetAttribute( q_item_web, "ACTIVE", "NO" );
+  }    
+
+  if( n = nxp_hash_exists( sign->str, (char *) "INFO" ) ){
+    IupSetAttribute( q_item_info, "ACTIVE", "YES" );
+  }
+  else{
+    IupSetAttribute( q_item_info, "ACTIVE", "NO" );
+  }    
+
   if( n = nxp_hash_exists( sign->str, (char *) "VALUE" ) ){
     nxp_hash_iterate( sign->str, (char *) "VALUE", choices_cb, q_type );
     sprintf( buf, "%d", n+1 );

@@ -55,6 +55,12 @@ void nxp_hash_set( char *name, char *key, char *val ){
   }
 }
 
+char *nxp_hash_get( char *name, char *key ){
+  char zkey[128];
+  sprintf( zkey, "%s%s1", name, key );
+  return (char *) zhash_get( S_BigHash, zkey );
+}
+
 int nxp_hash_exists( char *name, char *key ){
   char zkey[128];
   unsigned long long int  n = 0;

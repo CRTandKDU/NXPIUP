@@ -489,6 +489,22 @@ VALUE DISAGREE
 URL https://spaceshuttleguide.com/CRTSystemKeyboard.htm
 #+END_ATTRIBUTE
 
+#+BEGIN_INFO $task
+In the late seventies and early eighties NASA was busy with the STS
+envisioned in February 1969, by a Space Task Group, appointed by
+President Richard Nixon and headed by Vice President Spiro Agnew to
+recommend human space projects beyond Apollo. NASA appropriated the
+name for its Space Shuttle Program, the only component of the
+proposal to survive Congressional funding approval.
+
+The purpose of the system was two-fold:
+  * to reduce the cost of spaceflight by replacing the existing method
+    of launching capsules on expendable rockets with reusable
+    spacecraft; and
+  * to support ambitious follow-on programs including permanent
+    orbiting space stations around Earth and the Moon, and a human
+    landing mission to Mars.
+#+END_INFO
 
 * A version of the original file
 Files preserved from the Java implementation on <1996-07-16 mar.>

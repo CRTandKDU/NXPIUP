@@ -4,7 +4,8 @@
 #define VERSION_NXP "2025, Neuron Data"
 #define VERSION_GUI "IUP 3.32"
 #define VERSION_DSL "Embed Forth VM, 2018, Richard J. Howe"
-#define VERSION_LOG "NXP Architecture (40 years)\n© 2025-2026 -- %s\nGUI: %s\nDSL: %s\nNXP: %s\n"
+#define VERSION_LIB "Boost Graph Library 1.91.0"
+#define VERSION_LOG "NXP Architecture (40 years)\n© 2025-2026 -- %s\nGUI: %s\nDSL: %s\nLibs: %s\nNXP: %s\n"
 
 #define NXPIUP_ENCY_HYPOS "ency_hypos"
 #define NXPIUP_ENCY_SIGNS "ency_signs"

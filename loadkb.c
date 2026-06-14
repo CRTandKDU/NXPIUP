@@ -11,6 +11,7 @@
 #include "nxp_hash.h"
 
 #define TRACE_ON 0
+#define INFO_BUFSIZE 1024
 
 extern void  repl_log( const char *s );
 
@@ -22,6 +23,8 @@ const char * _BOOLNO  = "NO";
 
 const char * _BEG_ANNO = "#+BEGIN_ATTRIBUTE";
 const char * _END_ANNO = "#+END_ATTRIBUTE";
+const char * _BEG_INFO = "#+BEGIN_INFO";
+const char * _END_INFO = "#+END_INFO";
 
 
 sign_rec_ptr KB_Signs = (sign_rec_ptr) NULL;;
@@ -145,6 +148,7 @@ int loadkb_file( const char *fn ){
   char dsl_expr[_DSL_LINE];
   //
   char name[128], key[128], *val;
+  char *info, *curline;
   
   fp = fopen( fn, "r" );
   if (fp == NULL)
@@ -199,6 +203,21 @@ int loadkb_file( const char *fn ){
 	    _TRANSITION(255);
 	  }
 	}
+	else if( 0 == strcmp( _BEG_INFO, pch ) ){
+	  pch = strtok( NULL, delims );
+	  if(TRACE_ON) printf( "\t[S:%d] FW %s (%d)\n", sno, pch, strlen(pch) );
+	  if( NULL != pch && *pch != 0x0A ){
+	    strcpy( name, pch );
+	    if(TRACE_ON) printf( "NW %s\n", name );
+	    info = (char *) malloc( INFO_BUFSIZE*sizeof(char) );
+	    info[0] = 0x00;
+	    _TRANSITION(4);
+	  }
+	  else{
+	    _TRANSITION(255);
+	  }
+	}
+
 	break;
 	
       case 1: // Parsing lines as conditions until hypothesis declaration
@@ -329,6 +348,30 @@ int loadkb_file( const char *fn ){
 	      _TRANSITION(255);
 	    }
 	  }
+	}
+	break;
+
+      case 4:
+	// Accumulate in info buffer until end of block
+	if( NULL != line  ){
+	  //
+	  if( 0 == strncmp( _END_INFO, line, strlen(_END_INFO) ) ){
+	    val = (char *) malloc( strlen(info) * sizeof(char) );
+	    strcpy( val, info );
+	    nxp_hash_set( name, (char *) "INFO", val );
+	    free( info );
+	    _TRANSITION(0);
+	  }
+	  else{
+	    if( (strlen( info ) + strlen( line )) < INFO_BUFSIZE ){
+	      info = strcat( info, line );
+	    }
+	    else{
+	    }
+	  }
+	}
+	else{
+	  _TRANSITION(255);
 	}
 	break;
 

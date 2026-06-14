@@ -265,7 +265,7 @@ void nxpiup_dlgmenu( void ){
   IupSetHandle("mymenu", menu);
   //
   char log_version[192];
-  sprintf( log_version, VERSION_LOG, __DATE__, VERSION_GUI, VERSION_DSL, VERSION_NXP );
+  sprintf( log_version, VERSION_LOG, __DATE__, VERSION_GUI, VERSION_DSL, VERSION_LIB, VERSION_NXP );
   Ihandle *log = IupMultiLine( NULL );
   IupSetAttribute( log, "READONLY", "YES" );
   IupSetAttribute( log, "VISIBLELINES", "20" );

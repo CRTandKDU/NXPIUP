@@ -87,6 +87,9 @@ canvas3: canvas3.c $(OBJS_NXPIUP) $(OBJS_NETW) $(APIS_OBJS_NXP) $(OBJS_ZHASH)
 # layout: layout.cpp
 # 	g++ layout.cpp -o layout.exe -IC:/Users/chauv/Documents/IUP/boost_1_91_0
 
+zbox: examples/C/zbox.c Makefile
+	$(CC) examples/C/zbox.c -o zbox.exe $(CFLAGS) $(LFLAGS) $(LIBS) $(LIBS_WEB)
+
 
 %.o: %.c $(API_DEPS)
 	$(CC) -c -o $@ $< $(APIS_CFLAGS) $(CFLAGS) $(DSL_CFLAGS)
