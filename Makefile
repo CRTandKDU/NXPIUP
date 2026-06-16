@@ -21,7 +21,7 @@ DSL_LFLAGS		= $(DSL_DIR)/libcsv/libcsv_la-libcsv.o $(DSL_DIR)/embed-master/util.
 
 # 3) NXP (40y, 2025 edition) Section
 APIS_DIR		= C:/Users/chauv/Documents/IUP
-APIS_OBJS_NXP		= $(APIS_DIR)/sign.o $(APIS_DIR)/rule.o $(APIS_DIR)/hypo.o $(APIS_DIR)/compound.o $(APIS_DIR)/engine.o $(APIS_DIR)/engine_dsl.o $(APIS_DIR)/loadkb.o $(APIS_DIR)/nxp_hash.o
+APIS_OBJS_NXP		= $(APIS_DIR)/sign.o $(APIS_DIR)/rule.o $(APIS_DIR)/hypo.o $(APIS_DIR)/compound.o $(APIS_DIR)/engine.o $(APIS_DIR)/engine_dsl.o $(APIS_DIR)/loadkb.o $(APIS_DIR)/nxp_hash.o $(APIS_DIR)/nxp_evoke.o
 APIS_DEPS		= agenda.h Makefile
 APIS_CFLAGS		= -I$(APIS_DIR) -I$(DSL_DIR)/libforth -I$(DSL_DIR)/embed-master -I$(DSL_DIR)/libcsv -I$(APIS_DIR)/zhash
 
@@ -87,8 +87,8 @@ canvas3: canvas3.c $(OBJS_NXPIUP) $(OBJS_NETW) $(APIS_OBJS_NXP) $(OBJS_ZHASH)
 # layout: layout.cpp
 # 	g++ layout.cpp -o layout.exe -IC:/Users/chauv/Documents/IUP/boost_1_91_0
 
-zbox: examples/C/zbox.c Makefile
-	$(CC) examples/C/zbox.c -o zbox.exe $(CFLAGS) $(LFLAGS) $(LIBS) $(LIBS_WEB)
+# zbox: examples/C/zbox.c Makefile
+# 	$(CC) examples/C/zbox.c -o zbox.exe $(CFLAGS) $(LFLAGS) $(LIBS) $(LIBS_WEB)
 
 
 %.o: %.c $(API_DEPS)

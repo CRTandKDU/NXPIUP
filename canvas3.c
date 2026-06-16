@@ -18,6 +18,7 @@
 #include "netw.h"
 #include "nxpiup.h"
 #include "nxp_hash.h"
+#include "nxp_evoke.h"
 
 static Ihandle *S_Timer  = NULL;
 static Ihandle *S_splash = NULL;
@@ -537,20 +538,38 @@ void cb_on_agenda_pop( sign_rec_ptr sign, struct val_rec *val ){
   engine_default_on_agenda_pop( sign, val );
 }
 
+void evoke_cb( char *name, char *prop, char *key, char *val, unsigned int idx, int q_type ){
+  sign_rec_ptr sign = sign_find( val, loadkb_get_allhypos() );
+  if( sign ){
+    evoke_push( sign );
+    printf( "Secondary agenda push %s\n", val );
+  }
+}
+
 void cb_on_set( sign_rec_ptr sign, struct val_rec *val ){
+  int n;
   printf( "Set %s:\t", sign->str );
   print_local_val_repr( &sign->val ); printf("\t");
   print_local_val_repr( val ); printf("\n");
+  if( n = nxp_hash_exists( sign->str, (char *)"EVOKE" ) ){
+    nxp_hash_iterate( sign->str, (char *) "EVOKE", evoke_cb, 0 );
+  }
   //
   NXPIUP_UPDATES
 }
 
 void cb_on_endsession( sign_rec_ptr sign, struct val_rec *val ){
-  printf( "End of session.\n" );
-  repl_log( "[SESSION] End of session\n" );
+  printf( "End of primary agenda.\n" );
+  repl_log( "[SESSION] End of primary agenda\n" );
+  // Handling secondary agenda
+  if( evoke_notemptyp() ){
+    evoke_switch_agenda( S_State );
+    engine_knowcess( S_State );
+  }
   //
   Ihandle *ih_item = IupGetHandle( "item_knowcess" );
   IupSetAttribute( ih_item, "ACTIVE", "YES" );
+  repl_log( "[SESSION] End of session\n" );
   //
   NXPIUP_UPDATES
 }
@@ -618,6 +637,7 @@ int main(int argc, char* argv[])
 #endif
 
   nxp_hash_open();
+  evoke_init();
 
   //----------------------------------------------------------------------
   // IUP application
@@ -641,6 +661,7 @@ int main(int argc, char* argv[])
   //----------------------------------------------------------------------
   // NXP epilogue
   //----------------------------------------------------------------------
+  evoke_free();
   nxp_hash_close();
 #ifdef ENGINE_DSL
   printf( "Shutdown -- Freeing DSL engine\n" );
