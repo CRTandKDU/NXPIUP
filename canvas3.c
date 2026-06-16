@@ -296,6 +296,12 @@ int netw_toggle_compound_cb( Ihandle *ih ){
   return IUP_DEFAULT;
 }
 
+int netw_toggle_evoke_cb( Ihandle *ih ){
+  IupUpdate( IupGetHandle( "rule_network" ) );
+  return IUP_DEFAULT;
+}
+
+
 void CanvasScrollbarTest(void)
 {
   Ihandle *dlg, *cnv;
@@ -335,7 +341,10 @@ void CanvasScrollbarTest(void)
   Ihandle *netw_compound = IupToggle( "Forward-expand DSL conditions and RHSes", NULL );
   IupSetHandle( "netw_compound", netw_compound );
   IupSetCallback( netw_compound, "ACTION", (Icallback)netw_toggle_compound_cb );
-  hbox_orientation = IupHbox( netw_compound, NULL );
+  Ihandle *netw_evoke = IupToggle( "Including Evoke links", NULL );
+  IupSetHandle( "netw_evoke", netw_evoke );
+  IupSetCallback( netw_evoke, "ACTION", (Icallback)netw_toggle_evoke_cb );
+  hbox_orientation = IupVbox( netw_compound, netw_evoke, NULL );
   /* IupSetAttribute( hbox_orientation, "ALIGNMENT", "ACENTER" ); */
   IupSetAttribute( hbox_orientation, "EXPAND", "HORIZONTAL" );
   IupSetAttribute( hbox_orientation, "MARGIN", "5x5" );
@@ -538,7 +547,7 @@ void cb_on_agenda_pop( sign_rec_ptr sign, struct val_rec *val ){
   engine_default_on_agenda_pop( sign, val );
 }
 
-void evoke_cb( char *name, char *prop, char *key, char *val, unsigned int idx, int q_type ){
+void evoke_cb( char *name, char *prop, char *key, char *val, unsigned int idx, void *clientdata ){
   sign_rec_ptr sign = sign_find( val, loadkb_get_allhypos() );
   if( sign ){
     evoke_push( sign );
@@ -552,7 +561,7 @@ void cb_on_set( sign_rec_ptr sign, struct val_rec *val ){
   print_local_val_repr( &sign->val ); printf("\t");
   print_local_val_repr( val ); printf("\n");
   if( n = nxp_hash_exists( sign->str, (char *)"EVOKE" ) ){
-    nxp_hash_iterate( sign->str, (char *) "EVOKE", evoke_cb, 0 );
+    nxp_hash_iterate( sign->str, (char *) "EVOKE", evoke_cb, NULL );
   }
   //
   NXPIUP_UPDATES
@@ -563,6 +572,7 @@ void cb_on_endsession( sign_rec_ptr sign, struct val_rec *val ){
   repl_log( "[SESSION] End of primary agenda\n" );
   // Handling secondary agenda
   if( evoke_notemptyp() ){
+    repl_log( "[SESSION] Switching to secondary agenda\n" );
     evoke_switch_agenda( S_State );
     engine_knowcess( S_State );
   }

@@ -29,11 +29,12 @@ struct netw_cell_rec {
   //
   unsigned short expanded;
   unsigned short client_data_t;
-  void *client_data;
-  short nleft;
+  void           *client_data;
+  short             nleft;
   netw_cell_rec_ptr *left;
-  short nright;
+  short             nright;
   netw_cell_rec_ptr *right;
+  unsigned short    *rmask;
 };
 
 #define _NEW_CELL ((netw_cell_rec_ptr) malloc(sizeof( struct netw_cell_rec )))

@@ -135,8 +135,12 @@ void netw__redraw_onscale( cdCanvas *canvas, int scale, double WORLD_W, double W
 				   (double) (CELL_H*cell->right[i]->y + font_height/2), &x0, &y0 );
 	    break;
 	  }
-	  line_color = cdCanvasForeground( canvas, _NETW_LINE_COLOR_FWRD );
-	  line_style = cdCanvasLineStyle( canvas, _NETW_LINE_STYLE_FWRD );
+	  line_color = cdCanvasForeground( canvas,
+					   cell->rmask[i] == _NETW_FWRD_LINKTYPE_RULE ?
+					   _NETW_LINE_COLOR_FWRD : _NETW_LINE_COLOR_FWRDEVOKE );
+	  line_style = cdCanvasLineStyle( canvas,
+					  cell->rmask[i] == _NETW_FWRD_LINKTYPE_RULE ?
+					  _NETW_LINE_STYLE_FWRD : _NETW_LINE_STYLE_FWRDEVOKE );
 	  cdCanvasLine( canvas, xv, yv, x0, y0 );
 	  line_style = cdCanvasLineStyle( canvas, line_style );
 	  line_color = cdCanvasForeground( canvas, line_color );

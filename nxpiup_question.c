@@ -93,7 +93,8 @@ int qbut_question_cb( Ihandle *ih ){
   return IUP_DEFAULT ;
 }
 
-void choices_cb( char *name, char *prop, char *key, char *val, unsigned int idx, int q_type ){
+void choices_cb( char *name, char *prop, char *key, char *val, unsigned int idx, void *clientdata ){
+  int q_type = *( (int *) clientdata ) ;
   Ihandle *qchoices = IupGetHandle( QUESTION_CHOICES );
   char buf[6];
   sprintf( buf, "%d", idx );
@@ -265,7 +266,8 @@ Ihandle *nxpiup_question__generic( char *buf, sign_rec_ptr sign, int q_type ){
   }    
 
   if( n = nxp_hash_exists( sign->str, (char *) "VALUE" ) ){
-    nxp_hash_iterate( sign->str, (char *) "VALUE", choices_cb, q_type );
+    int qtype = q_type;
+    nxp_hash_iterate( sign->str, (char *) "VALUE", choices_cb, (void *) &qtype );
     sprintf( buf, "%d", n+1 );
     IupSetAttribute( qchoices, buf, NULL );
 

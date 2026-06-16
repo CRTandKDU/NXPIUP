@@ -129,7 +129,10 @@ void netw_free( cdCanvas *canvas ){
       old_cell = cell;
       cell = cell->next;
       if( old_cell->nleft )  free( (void *) old_cell->left );
-      if( old_cell->nright ) free( (void *) old_cell->right );
+      if( old_cell->nright ){
+	free( (void *) old_cell->right );
+	free( (void *) old_cell->rmask );
+      }
       free( (void *) old_cell );
     }
     old_col = col;

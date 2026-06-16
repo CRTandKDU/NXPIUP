@@ -12,9 +12,21 @@
 #include <wd.h>
 
 #include "agenda.h"
-
+#include "nxp_hash.h"
 #include "netw.h"
 #include "netw_internals.h"
+
+typedef struct netw_exp_context_rec{
+  cdCanvas *canvas;
+  double world_w;
+  double world_h;
+  unsigned short orientation;
+  netw_cell_rec_ptr cell;
+  // Added on Tuesday, June 16, 2026
+  netw_cell_rec_ptr junction;
+  int *y1ptr;
+  int *y2ptr;
+} *netw_exp_context_rec_ptr;
 
 #define NETW_BOOLEAN_SIGN(cell) ((((cell)->client_data_t == _NETW_SIGN_T) ||	\
 				  ((cell)->client_data_t == _NETW_SIGN_YES_T) ||	\
@@ -100,12 +112,15 @@ netw_cell_rec_ptr netw__forward_junction( cdCanvas *canvas, netw_cell_rec_ptr ce
   if( 0 == cell->nright ){
     cell->nright = 1;
     cell->right  = (netw_cell_rec_ptr *) malloc( sizeof(netw_cell_rec_ptr) );
+    cell->rmask  = (unsigned short *) malloc( sizeof(unsigned short) );
   }
   else{
     cell->nright += 1;
     cell->right   = (netw_cell_rec_ptr *) realloc( (void *) cell->right, cell->nright * sizeof(netw_cell_rec_ptr) );
+    cell->rmask   = (unsigned short *) realloc( (void *) cell->rmask, cell->nright * sizeof( unsigned short ) );
   }
   cell->right[ cell->nright - 1 ] = junction;
+  cell->rmask[ cell->nright - 1 ] = _NETW_FWRD_LINKTYPE_RULE;
   /* printf( "* FWRD Added junction in [%d], col=%d at y=%d\n", */
   /* 	  cell->nright - 1, junction->head->x, junction->y ); */
   // Link junction to forward hypotheses (w/o repetition) and readjust heights
@@ -147,6 +162,7 @@ netw_cell_rec_ptr netw__forward_junction( cdCanvas *canvas, netw_cell_rec_ptr ce
 void netw__forward_junction_expand( cdCanvas *canvas, netw_cell_rec_ptr cell,
 				    double WORLD_W, double WORLD_H, unsigned short orientation,
 				    netw_cell_rec_ptr junction, sign_rec_ptr h, int *y1ptr, int *y2ptr ){
+  // NOTE: 'orientation' is used here as the forward link type (superseding its original usage)
   netw_cell_rec_ptr chypo;
   short j;
   col_rec_ptr  head	= (col_rec_ptr) cdCanvasGetAttribute( canvas, "USERDATA" );
@@ -156,6 +172,7 @@ void netw__forward_junction_expand( cdCanvas *canvas, netw_cell_rec_ptr cell,
   if( 0 == junction->nright ){
     junction->nright = 1;
     junction->right = (netw_cell_rec_ptr *) malloc( sizeof(netw_cell_rec_ptr) );
+    junction->rmask = (unsigned short *) malloc( sizeof(unsigned short) );
     _NETW_NEWCELL( chypo );
     chypo->y			= *y2ptr + 1;
     chypo->head			= col2;
@@ -164,12 +181,13 @@ void netw__forward_junction_expand( cdCanvas *canvas, netw_cell_rec_ptr cell,
     netw__col_append_cell( col2, chypo );
     *y2ptr += 1;
     junction->right[0] = chypo;
+    junction->rmask[0] = orientation; // See NOTE
     printf( "FWRD Added %s in %d, col=%d at y=%d\n",
 	    h->str, junction->nright - 1, chypo->head->x, chypo->y );
   }
   else{
     // Is it already present?
-    short found = 0;
+    unsigned short found = 0;
     for( j=0; j<junction->nright; j++ ){
       if( h == (sign_rec_ptr) junction->right[j]->client_data ){
 	found = 1;
@@ -179,6 +197,7 @@ void netw__forward_junction_expand( cdCanvas *canvas, netw_cell_rec_ptr cell,
     if( !found ){
       junction->nright += 1;
       junction->right = (netw_cell_rec_ptr *) realloc( junction->right, junction->nright*sizeof(netw_cell_rec_ptr) );
+      junction->rmask = (unsigned short *) realloc( junction->rmask, junction->nright * sizeof(unsigned short) );
       if( !junction->right ){
 	printf( "*** ERROR reallocating\n\n" );
       }
@@ -190,9 +209,19 @@ void netw__forward_junction_expand( cdCanvas *canvas, netw_cell_rec_ptr cell,
       netw__col_append_cell( col2, chypo );
       *y2ptr += 1;
       junction->right[ junction->nright - 1 ] = chypo;
+      junction->rmask[ junction->nright - 1 ] = orientation; // See note
       printf( "FWRD Added %s in %d, col=%d at y=%d\n",
 	      h->str, junction->nright - 1, chypo->head->x, chypo->y );
     }
+  }
+}
+
+void evoke_forward_cb( char *name, char *prop, char *key, char *val, unsigned int idx, void *clientdata ){
+  sign_rec_ptr sign			= sign_find( val, loadkb_get_allhypos() );
+  netw_exp_context_rec_ptr context	= (netw_exp_context_rec_ptr) clientdata;
+  if( sign ){
+    netw__forward_junction_expand( context->canvas, context->cell, context->world_w, context->world_h,
+				   _NETW_FWRD_LINKTYPE_EVOKE, context->junction, sign, context->y1ptr, context->y2ptr );
   }
 }
 
@@ -208,8 +237,24 @@ void netw__forward_dslvar( cdCanvas *canvas, netw_cell_rec_ptr cell,
   for( i=0; i<dsl_var->nsetters; i++ ){
     // Compounds have only one setter-rule
     h = (sign_rec_ptr) (((fwrd_rec_ptr) ((sign_rec_ptr) ((fwrd_rec_ptr) dsl_var->setters[i])->rule)->setters[0])->rule->setters);
-    netw__forward_junction_expand( canvas, cell, WORLD_W, WORLD_H, orientation, junction, h, &y1, &y2 );
+    netw__forward_junction_expand( canvas, cell, WORLD_W, WORLD_H, _NETW_FWRD_LINKTYPE_RULE, junction, h, &y1, &y2 );
   }
+  //
+  char *param = IupGetAttribute( IupGetHandle( "netw_evoke" ), "VALUE" );
+  if( 0 == strcmp( param, "ON" ) && nxp_hash_exists( dsl_var->str, (char *) "EVOKE" ) ){
+    struct netw_exp_context_rec context;
+    context.canvas	= canvas;
+    context.cell	= cell;
+    context.orientation = _NETW_FWRD_LINKTYPE_EVOKE;
+    context.world_h	= WORLD_H;
+    context.world_w	= WORLD_W;
+    // Additional args
+    context.junction	= junction;
+    context.y1ptr       = &y1;
+    context.y2ptr       = &y2;
+    nxp_hash_iterate( dsl_var->str, (char *)"EVOKE", evoke_forward_cb, (void *) &context );
+  }
+
 }
 
 void netw__forward_compound( cdCanvas *canvas, netw_cell_rec_ptr cell,
@@ -231,14 +276,6 @@ void netw__forward_compound( cdCanvas *canvas, netw_cell_rec_ptr cell,
   }
 }
 
-
-typedef struct netw_exp_context_rec{
-  cdCanvas *canvas;
-  double world_w;
-  double world_h;
-  unsigned short orientation;
-  netw_cell_rec_ptr cell;
-} *netw_exp_context_rec_ptr;
 
 sign_rec_ptr forward_rhs_cb (char *pw, compound_rec_ptr compound, sign_rec_ptr top ){
   netw_exp_context_rec_ptr context = (netw_exp_context_rec_ptr) compound;
@@ -591,7 +628,7 @@ void netw__toggle_expand( cdCanvas *canvas, netw_cell_rec_ptr cell, int shifted,
 	if( NETW_BOOLEAN_SIGN( cell ) )
 	  netw__expand_forward( canvas, cell, WORLD_W, WORLD_H, orientation );
 	else if( cell->client_data_t == _NETW_STR_T ){
-	  char *param = IupGetAttribute( IupGetHandle( "netw_compound" ), "VALUE" );
+ 	  char *param = IupGetAttribute( IupGetHandle( "netw_compound" ), "VALUE" );
 	  if( 0 == strcmp( param, "ON" ) )
 	    netw__forward_rhs( canvas, cell, WORLD_W, WORLD_H, orientation );
 	}

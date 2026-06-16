@@ -70,7 +70,7 @@ int nxp_hash_exists( char *name, char *key ){
   return (int) n;
 }
 
-void nxp_hash_iterate( char *name, char *key, nxp_hash_iter_t f, int context ){
+void nxp_hash_iterate( char *name, char *key, nxp_hash_iter_t f, void *context ){
   char zkey[128];
   unsigned int i;
   unsigned long long int  n;

@@ -3,8 +3,14 @@
 
 #define _NETW_LINE_STYLE_BWRD CD_CONTINUOUS
 #define _NETW_LINE_STYLE_FWRD CD_DOTTED
+#define _NETW_LINE_STYLE_FWRDEVOKE CD_CONTINUOUS
+
 #define _NETW_LINE_COLOR_BWRD CD_BLACK
 #define _NETW_LINE_COLOR_FWRD CD_BLACK
+#define _NETW_LINE_COLOR_FWRDEVOKE CD_GRAY
+
+#define _NETW_FWRD_LINKTYPE_RULE  0x00
+#define _NETW_FWRD_LINKTYPE_EVOKE 0x01
 
 #define  _NETW_NEWCELL(cptr)       (cptr) = _NEW_CELL; \
       (cptr)->y	= 0; \
@@ -16,7 +22,9 @@
       (cptr)->nleft = 0; \
       (cptr)->left = NULL; \
       (cptr)->nright = 0; \
-      (cptr)->right = NULL;
+      (cptr)->right = NULL; \
+      (cptr)->rmask = NULL;
+
 
 #define _NETW_INFINITY 100000
 #define _NETW_TEMP_BUFSIZE 64
