@@ -41,6 +41,9 @@ typedef struct rule_rec *rule_rec_ptr;
 
 char *S_val_color( unsigned short val );
 
+void *xmalloc(size_t);
+void *xrealloc(void *, size_t);
+
 //
 /* ** Links from signs to either rules or compound signs */
 /* The ~fwrd_rec~ structure captures two types of forward links from signs: */
@@ -255,17 +258,37 @@ sign_rec_ptr agenda_get_allsigns();
 
 typedef sign_rec_ptr (*loadkb_parse_cb_t) (char *pw, compound_rec_ptr compound, sign_rec_ptr top );
 
-sign_rec_ptr    loadkb_parse( char *dsl_expr, compound_rec_ptr compound, sign_rec_ptr top, loadkb_parse_cb_t f );
-int		loadkb_file( const char *fn );
-void		loadkb_reset();
-sign_rec_ptr	loadkb_get_allsigns();
-hypo_rec_ptr	loadkb_get_allhypos();
-rule_rec_ptr	loadkb_get_allrules();
-int		loadkb_howmany( sign_rec_ptr top );
+sign_rec_ptr	        loadkb_parse( char *, compound_rec_ptr, sign_rec_ptr, loadkb_parse_cb_t );
+int			loadkb_file( const char *, int );
+void			loadkb_reset();
+sign_rec_ptr		loadkb_get_allsigns();
+hypo_rec_ptr		loadkb_get_allhypos();
+rule_rec_ptr		loadkb_get_allrules();
+int			loadkb_howmany( sign_rec_ptr top );
+
+#define LOADKB_OVERWRITE 1
+#define LOADKB_CUMULATE  0
 
 #define ENCY_SIGN 0
 #define ENCY_HYPO 1
 #define ENCY_AGND 2
+
+static inline void sign_init_value(sign_rec_ptr sign)
+{
+    sign->val.status    = _UNKNOWN;
+    sign->val.type      = _VAL_T_BOOL;
+
+    sign->val.val_bool  = 0;
+    sign->val.val_int   = 0;
+    sign->val.val_float = 0.0f;
+    sign->val.valptr    = NULL;
+
+#ifdef ENGINE_DSL_HOWERJFORTH
+    sign->val.val_forth = 0;
+#endif
+}
+
+
 
 #endif
 

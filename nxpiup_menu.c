@@ -41,7 +41,7 @@ int nxpiup_dlgloadkb( void ){
     {
       printf("OK\n");
       printf("  VALUE(%s)\n", IupGetAttribute(dlg, "VALUE"));
-      res = loadkb_file( IupGetAttribute(dlg, "VALUE") );
+      res = loadkb_file( IupGetAttribute(dlg, "VALUE"), LOADKB_OVERWRITE );
       char buf[64];
       sprintf( buf, "[KB] Loaded KB: %s - %s", IupGetAttribute(dlg, "VALUE"), res ? "Failed" : "OK" );
       repl_log( buf );
