@@ -90,6 +90,8 @@ canvas3: canvas3.c $(OBJS_NXPIUP) $(OBJS_NETW) $(APIS_OBJS_NXP) $(OBJS_ZHASH)
 # zbox: examples/C/zbox.c Makefile
 # 	$(CC) examples/C/zbox.c -o zbox.exe $(CFLAGS) $(LFLAGS) $(LIBS) $(LIBS_WEB)
 
+# curltest: curltest.c
+# 	$(CC) curltest.c -o curltest.exe  $(APIS_CFLAGS) $(CFLAGS) $(DSL_CFLAGS) `curl-config --cflags` `curl-config --libs`
 
 %.o: %.c $(API_DEPS)
 	$(CC) -c -o $@ $< $(APIS_CFLAGS) $(CFLAGS) $(DSL_CFLAGS)

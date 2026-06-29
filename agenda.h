@@ -5,19 +5,19 @@
 
 #define TRACE_ON 0
 
-struct empty {};
-typedef struct empty *empty_ptr;
+struct		 empty {};
+typedef struct	 empty *empty_ptr;
 
-struct sign_rec;
-typedef struct sign_rec *sign_rec_ptr;
-typedef void (*sign_op) (sign_rec_ptr);
-typedef sign_rec_ptr hypo_rec_ptr;
+struct		 sign_rec;
+typedef struct	 sign_rec *sign_rec_ptr;
+typedef          void (*sign_op) (sign_rec_ptr);
+typedef		 sign_rec_ptr hypo_rec_ptr;
 
-struct compound_rec;
-typedef struct compound_rec *compound_rec_ptr;
+struct           compound_rec;
+typedef struct   compound_rec *compound_rec_ptr;
 
-struct rule_rec;
-typedef struct rule_rec *rule_rec_ptr;
+struct           rule_rec;
+typedef struct   rule_rec *rule_rec_ptr;
 
 
 #define SIGN_MASK	(unsigned short)0x00
@@ -41,6 +41,7 @@ typedef struct rule_rec *rule_rec_ptr;
 
 char *S_val_color( unsigned short val );
 
+// The mem allocation utilities are in `sign.c'
 void *xmalloc(size_t);
 void *xrealloc(void *, size_t);
 
