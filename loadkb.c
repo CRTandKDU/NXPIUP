@@ -657,6 +657,9 @@ int loadkb_file(const char *filename, int resetp )
     free(line);
     fclose(fp);
 
+    // Keep track of KBs
+    nxp_hash_set( (char *) TOPIC_WKB, (char *) ATTR_WKB, filename );
+    
     return 0;
 }
 

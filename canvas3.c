@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <cstring>
+
 #include <iup.h>
 #include <iupim.h>
 #include <iupcontrols.h>
@@ -14,14 +15,18 @@
 #include <cdiup.h>
 #include <wd.h>
 
+#include <curl/curl.h>
+
 #include "agenda.h"
+
 #include "netw.h"
 #include "nxpiup.h"
 #include "nxp_hash.h"
 #include "nxp_evoke.h"
 
-static Ihandle *S_Timer  = NULL;
-static Ihandle *S_splash = NULL;
+static Ihandle *S_Timer		= NULL;
+static Ihandle *S_splash	= NULL;
+static CURL    *S_curl		= NULL;
 
 /* World:
    The canvas will be a window into that space.
@@ -652,6 +657,17 @@ int main(int argc, char* argv[])
   //----------------------------------------------------------------------
   // IUP application
   //----------------------------------------------------------------------
+  CURLcode result = curl_global_init(CURL_GLOBAL_ALL);
+  if(result != CURLE_OK){
+    fprintf( stderr, "Could not initialize curl\n" );
+  }
+  else{
+    S_curl = curl_easy_init();
+  }
+
+  //----------------------------------------------------------------------
+  // IUP application
+  //----------------------------------------------------------------------
 
   IupOpen(&argc, &argv);
   IupControlsOpen();
@@ -667,6 +683,11 @@ int main(int argc, char* argv[])
   IupMainLoop();
 
   IupClose();
+
+  if( S_curl ){
+    curl_easy_cleanup(S_curl);
+    curl_global_cleanup();
+  }
 
   //----------------------------------------------------------------------
   // NXP epilogue

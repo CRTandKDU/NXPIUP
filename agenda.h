@@ -270,10 +270,12 @@ int			loadkb_howmany( sign_rec_ptr top );
 #define LOADKB_OVERWRITE 1
 #define LOADKB_CUMULATE  0
 
+// GUI
 #define ENCY_SIGN 0
 #define ENCY_HYPO 1
 #define ENCY_AGND 2
 
+// Misc from ChatGPT revision
 static inline void sign_init_value(sign_rec_ptr sign)
 {
     sign->val.status    = _UNKNOWN;
@@ -289,7 +291,13 @@ static inline void sign_init_value(sign_rec_ptr sign)
 #endif
 }
 
+// Extensions of kb representation: Web-of-Knowledge-Bases (WKB)
+#define TOPIC_WKB "WKB"
+#define ATTR_WKB  "KB"
 
+int  hypo_remote_aliasp( char * );
+void hypo_remote_backward( sign_rec_ptr, int * );
+int  hypo_remote_get_asfile( const char * );
 
 #endif
 

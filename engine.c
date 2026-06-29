@@ -436,12 +436,16 @@ void engine_backward_cond( cond_rec_ptr cond, int* suspend ){
   if(TRACE_ON) printf ("__FUNCTION__ = %s %s\n", __FUNCTION__, cond->sign->str);
   if( _UNKNOWN != cond->val ) return;
   if( _UNKNOWN == cond->sign->val.status ){
-    if( HYPO_MASK == (cond->sign->len_type & TYPE_MASK) ||
+    if( HYPO_MASK     == (cond->sign->len_type & TYPE_MASK) ||
 	COMPOUND_MASK == (cond->sign->len_type & TYPE_MASK) ){
       engine_pushnew_hypo( repl_getState(), (hypo_rec_ptr) cond->sign );
     }
+    char remote_hypo[_CHOP] = {0};
+    if( hypo_remote_aliasp( cond->sign->str ) ){
+      hypo_remote_backward( cond->sign, suspend );
+    }
     // Hypothesis: backward on rules
-    if( HYPO_MASK == (cond->sign->len_type & TYPE_MASK) ){
+    else if( HYPO_MASK == (cond->sign->len_type & TYPE_MASK) ){
       engine_backward_hypo( (hypo_rec_ptr) cond->sign, suspend );
     }
     // Sign or Compound: ask or execute DSL program

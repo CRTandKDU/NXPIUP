@@ -6,9 +6,9 @@ typedef void (*nxp_hash_iter_t) (char *, char *, char *, char *, unsigned int, v
 void nxp_hash_open();
 void nxp_hash_close();
 void nxp_hash_print();
-void nxp_hash_set( char *, char *, char * );
+void nxp_hash_set( char *, char *, const char * );
 char *nxp_hash_get( char *, char * );
-int nxp_hash_exists( char *, char * );
+int  nxp_hash_exists( char *, char * );
 void nxp_hash_iterate( char *, char *, nxp_hash_iter_t, void * );
 
 #endif

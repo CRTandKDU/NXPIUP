@@ -38,7 +38,7 @@ void nxp_hash_close(){
   if( S_BigHash ) nxp_hash__free( S_BigHash );
 }
 
-void nxp_hash_set( char *name, char *key, char *val ){
+void nxp_hash_set( char *name, char *key, const char *val ){
   char zkey[128];
   unsigned long long int  n;
   sprintf( zkey, "%s%s|", name, key );
