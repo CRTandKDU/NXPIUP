@@ -31,6 +31,7 @@ typedef void (*nxp_cb)( struct ZHashEntry * entry );
 struct ZHashTable *zcreate_hash_table(void);
 void zfree_hash_table(struct ZHashTable *hash_table);
 void nxp_zfree_hash_table(struct ZHashTable *hash_table, nxp_cb);
+void nxp_iterate_hash_table(struct ZHashTable *hash_table, nxp_cb f);
 
 // hash table operations
 void zhash_set(struct ZHashTable *hash_table, char *key, void *val);

@@ -10,18 +10,37 @@
 #include "src/zhash.h"
 #include "nxp_hash.h"
 
+
 typedef struct ZHashTable       *zhash_ptr;
 
 static zhash_ptr  S_BigHash = NULL;
 
+void nxp_hash_iterate_table( void *f ){
+  if( S_BigHash )
+    nxp_iterate_hash_table( S_BigHash, (nxp_cb) f );
+}
+
+void nxp_hash__printentry( struct ZHashEntry *entry ){
+  if( '|' != entry->key[ strlen(entry->key) - 1 ] ){
+    printf( "\tkey=%s\tval=%s\n", entry->key, entry->val );
+  }
+  else{
+    printf( "\tkey=%s\tval=%d\n", entry->key, (unsigned long int) entry->val );
+  }
+}
+
 void nxp_hash_print(){
   printf( "BIGHASH %d entries\n", S_BigHash->entry_count );
+  nxp_hash_iterate_table( (void *) nxp_hash__printentry );
 }
 
 void nxp_hash__free_entry( struct ZHashEntry* entry ){
   if( '|' != entry->key[ strlen(entry->key) - 1 ] ){
     printf( "BigHash Freeing %s\n", entry->val );
     free( entry->val );
+  }
+  else{
+    printf( "BigHash Freeing key=%s\tval=%d\n", entry->key, (unsigned long int) entry->val );
   }
 }
 

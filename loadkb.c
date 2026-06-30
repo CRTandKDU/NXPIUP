@@ -16,6 +16,7 @@
 
 #define INFO_BUFSIZE 1024
 #define TRACE_ON 0
+#define LOADKB_DELIMS " \t\n\r"
 
 static const char *BEG_RULE = "#+BEGIN_RULE";
 static const char *END_RULE = "#+END_RULE";
@@ -158,7 +159,7 @@ sign_rec_ptr
 loadkb_parse_cb( char *pw, compound_rec_ptr compound, sign_rec_ptr top ){
   sign_rec_ptr lsign, newtop = top;
   int r;
-  printf( "\t\tFound DSL-shared variable: %s\n", pw );
+  /* printf( "\t\tFound DSL-shared variable: %s\n", pw ); */
   /* repl_log( pw ); */
   lsign = sign_find( pw, top );
   if( NULL == lsign ){
@@ -174,7 +175,7 @@ loadkb_parse_cb( char *pw, compound_rec_ptr compound, sign_rec_ptr top ){
 
 sign_rec_ptr
 loadkb_parse( char *dsl_expr, compound_rec_ptr compound, sign_rec_ptr top, loadkb_parse_cb_t f ){
-  printf( "\tParse=%s\n", dsl_expr );
+  /* printf( "\tParse=%s\n", dsl_expr ); */
   // Destroys dsl_expr and top
   const char *ws = " \t\x0d"; // Whitespace characters that separate tokens
   char *pw, *pnw;
@@ -278,7 +279,7 @@ static void
 parse_idle(parser_ctx_t *ctx,
            char *line)
 {
-    const char delims[] = " \t\r";
+    const char delims[] = LOADKB_DELIMS;
 
     char *tok = first_token(line, delims);
 
@@ -372,7 +373,7 @@ static void
 parse_rule_conditions(parser_ctx_t *ctx,
                       char *line)
 {
-    const char delims[] = " \t\r";
+    const char delims[] = LOADKB_DELIMS;
 
     char *copy = strdup(line);
     char *tok  = first_token(line, delims);
@@ -500,11 +501,11 @@ static void
 parse_rule_actions(parser_ctx_t *ctx,
                    char *line)
 {
-    const char delims[] = " \t\r";
+    const char delims[] = LOADKB_DELIMS;
 
     char *copy = strdup(line);
     char *tok  = first_token(line, delims);
-
+    printf( "Parse rule actions copy=%s tok=%s\n", copy, tok );
     if (tok && !strcmp(tok, END_RULE))
     {
         set_state(ctx,
@@ -534,7 +535,7 @@ static void
 parse_attributes(parser_ctx_t *ctx,
                  char *line)
 {
-    const char delims[] = " \t\r";
+    const char delims[] = LOADKB_DELIMS;
 
     char *key = first_token(line, delims);
 
@@ -658,7 +659,8 @@ int loadkb_file(const char *filename, int resetp )
     fclose(fp);
 
     // Keep track of KBs
-    nxp_hash_set( (char *) TOPIC_WKB, (char *) ATTR_WKB, filename );
+    char *dup_filename = strdup( filename );
+    nxp_hash_set( (char *) TOPIC_WKB, (char *) ATTR_WKB, dup_filename );
     
     return 0;
 }

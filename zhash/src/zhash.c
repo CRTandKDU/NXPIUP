@@ -67,6 +67,21 @@ void nxp_zfree_hash_table(struct ZHashTable *hash_table, nxp_cb f)
   zfree((void *) hash_table);
 }
 
+void nxp_iterate_hash_table(struct ZHashTable *hash_table, nxp_cb f)
+{
+  size_t size, ii;
+
+  size = hash_sizes[hash_table->size_index];
+
+  for (ii = 0; ii < size; ii++) {
+    struct ZHashEntry *entry;
+
+    if ((entry = hash_table->entries[ii])){
+      f( entry );
+    }
+  }
+}
+
 
 void zhash_set(struct ZHashTable *hash_table, char *key, void *val)
 {

@@ -454,10 +454,10 @@ int hypo_remote_get_asfile( const char *url ){
   FILE *outf;
  
   size_t nread;
-  char buffer[256];
+  char buffer[ 256 ];
 
   /* copy from url line by line with fgets */
-  outf = fopen(FGETSFILE, "wb+");
+  outf = fopen(FGETSFILE, "w+");
   if(!outf) {
     perror("couldn't open fgets output file\n");
     return 1;

@@ -34,7 +34,7 @@ CFLAGS_WEB              = -I./webview-master/core/include
 CFLAGS_NXP		= $(API_CFLAGS) $(CFLAGS_ZHASH) $(CFLAGS_BOOST) $(CFLAGS_CURL)
 
 OBJS_ZHASH		= $(APIS_DIR)/zhash/src/zhash.o
-OBJS_CURL               = hypo_remote.o hypo_remote_fopen.o
+OBJS_CURL               = hypo_remote.o hypo_remote_get.o
 
 # 4) Rules Network Section
 # CSOURCES_NETW		= netw.c netw_internals.c netw_expansion.c netw_redraw.c
@@ -97,8 +97,8 @@ canvas3: canvas3.c $(OBJS_NXPIUP) $(OBJS_NETW) $(APIS_OBJS_NXP) $(OBJS_ZHASH) $(
 # curltest: curltest.c
 # 	$(CC) curltest.c -o curltest.exe  $(APIS_CFLAGS) $(CFLAGS) $(DSL_CFLAGS) `curl-config --cflags` `curl-config --libs`
 
-curltest: hypo_remote_fopen.o
-	$(CC) hypo_remote_fopen.o -o curltest.exe $(CFLAGS) `curl-config --cflags` `curl-config --libs`
+curltest: hypo_remote_get.o
+	$(CC) hypo_remote_get.o -o curltest.exe $(CFLAGS) `curl-config --cflags` `curl-config --libs`
 
 %.o: %.c $(API_DEPS)
 	$(CC) -c -o $@ $< $(APIS_CFLAGS) $(CFLAGS) $(DSL_CFLAGS)

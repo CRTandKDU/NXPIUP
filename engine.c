@@ -10,6 +10,8 @@
 #include <stdarg.h>
 #include "agenda.h"
 
+#define TRACE_ON 1
+
 #ifdef FLTK
 extern void  repl_log( const char *s,... );
 #else
@@ -442,6 +444,7 @@ void engine_backward_cond( cond_rec_ptr cond, int* suspend ){
     }
     char remote_hypo[_CHOP] = {0};
     if( hypo_remote_aliasp( cond->sign->str ) ){
+      printf ("__FUNCTION__ = %s %s is an alias\n", __FUNCTION__, cond->sign->str);
       hypo_remote_backward( cond->sign, suspend );
     }
     // Hypothesis: backward on rules

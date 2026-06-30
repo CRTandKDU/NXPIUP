@@ -10,5 +10,5 @@ void nxp_hash_set( char *, char *, const char * );
 char *nxp_hash_get( char *, char * );
 int  nxp_hash_exists( char *, char * );
 void nxp_hash_iterate( char *, char *, nxp_hash_iter_t, void * );
-
+void nxp_hash_iterate_table( void * );
 #endif

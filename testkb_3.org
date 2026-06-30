@@ -1,0 +1,20 @@
+* WKB test rules
+
+#+BEGIN_RULE action_P_remedy
+YES KB1|ALARM_TANK_WAS_P1_OR_P2
+NO TANK_WAS_HIGH
+THEN ACTION_P
+200 pressure_P1 nxp!
+205 pressure_P2 nxp!
+300 pressure_P3 nxp!
+200 pressure_P4 nxp!
+200 pressure_out_P3 nxp!
+205 pressure_out_P4 nxp!
+#+END_RULE
+
+** Aliases for knowledge bases
+
+#+BEGIN_ATTRIBUTE KB1
+URL https://raw.githubusercontent.com/CRTandKDU/NXPIUP/main/satfault.org
+#+END_ATTRIBUTE
+
