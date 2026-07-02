@@ -408,7 +408,38 @@ void netw__expand_backward(  cdCanvas *canvas, netw_cell_rec_ptr cell,
     return;
   if( COMPOUND_MASK == (sign->len_type & TYPE_MASK) )
     return;
-
+  // We introduced the notation <URL>|<HYPO> for a sign alias to an hypo in another KB.
+  if( hypo_remote_aliasp( sign->str ) ){
+    int loadedp = 0;
+    sign_rec_ptr hypo;
+    // Parse alias sign into URL and anchor hypo
+    _WKB_GETSURL(sign->str);
+    //
+    printf( "HYPO_REMOTE_BWRD Expanding %s\n", token );
+    if( !nxp_hash_exists( token, (char *) "URL" ) ){
+      // Missing remote KB URL; Nothing to expand
+      free( buf );
+      return;
+    }
+    //
+    printf( "HYPO_REMOTE_BWRD Has URL %s\n", token );
+    _WKB_GETSHYP;
+    printf( "WKB: hypo=%s in %s\n", sHYP, sURL ); 
+      // Check if KB already loaded
+    loadedp = hypo_remote_loadedp( sURL );
+    if( !loadedp )
+      return;
+    // Alias
+    hypo = sign_find( sHYP, loadkb_get_allhypos() );
+    if( hypo ){
+      ncol1 = hypo->ngetters;
+      sign  = hypo;
+    }
+    else
+      return;
+  }
+  if( 0 == ncol1 )
+    return;
   /* printf( "ToggleExpand %s (%d,%d): nrules=%d, ymax1=%d, ymax2=%d\npmax1=%d, pmax2=%d, pmin1=%d, pmin2=%d\n", */
   /* 	  sign->str, cell->head->x, cell->y, ncol1, y1, y2, */
   /* 	  cparent1 ? cparent1->y : -1, */
@@ -416,8 +447,8 @@ void netw__expand_backward(  cdCanvas *canvas, netw_cell_rec_ptr cell,
   /* 	  cparent1min ? cparent1min->y : -1, */
   /* 	  cparent2min ? cparent2min->y : -1 ); */
   // Allocate left links in RL orientation
-  cell->nleft = ncol1;
-  cell->left = (netw_cell_rec_ptr *) malloc( ncol1 * sizeof(netw_cell_rec_ptr) );
+  cell->nleft	= ncol1;
+  cell->left	= (netw_cell_rec_ptr *) malloc( ncol1 * sizeof(netw_cell_rec_ptr) );
   // Impossible Aesthetics!
   /* y1 = (y2) ? y2 + 1 : y2 ; */
   /* y2 = y1; */

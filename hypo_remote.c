@@ -18,8 +18,6 @@
 #include <iup.h>
 #include "nxpiup.h"
 
-#define HYPO_REMOTE_DELIMS ((char *) "|")
-
 extern engine_state_rec_ptr repl_getState();
 
 typedef struct
@@ -29,9 +27,7 @@ typedef struct
 } wkb_ctx_t;
 
 int hypo_remote_aliasp( char *s ){
-  char *buf	= strdup( s );
-  char *delims	= HYPO_REMOTE_DELIMS;
-  char *token	= strtok( buf, delims ); // First: URL
+  _WKB_GETSURL(s)
   if( token ){
     token = strtok( NULL, delims ); // Next: Anchor
     if( token ){
@@ -65,13 +61,18 @@ void hypo_remote__cb( char *name, char *prop, char *key, char *val, unsigned int
     ctx->found += 1;
 }
 
+int hypo_remote_loadedp( char *sURL ){
+  wkb_ctx_t ctx = {
+    .skbid = sURL,
+    .found = 0
+  };
+  nxp_hash_iterate( (char *) TOPIC_WKB, (char *) ATTR_WKB, hypo_remote__cb, (void *) &ctx );
+  return ctx.found;
+}
+
 void hypo_remote_backward( sign_rec_ptr sign, int *suspend ){
   // Parse alias sign into URL and anchor hypo
-  char *buf		= strdup( sign->str );
-  char sURL[256]	= {0};
-  char sHYP[_CHOP]	= {0};
-  char *delims		= HYPO_REMOTE_DELIMS;
-  char *token		= strtok( buf, delims );
+  _WKB_GETSURL(sign->str);
   //
   printf( "HYPO_REMOTE_BWRD Testing %s\n", token );
   if( !nxp_hash_exists( token, (char *) "URL" ) ){
@@ -85,18 +86,12 @@ void hypo_remote_backward( sign_rec_ptr sign, int *suspend ){
   }
   //
   printf( "HYPO_REMOTE_BWRD Has URL %s\n", token );
-  strcpy( sURL, nxp_hash_get( token, (char *) "URL" ) );
-  token = strtok( NULL, delims );
-  strcpy( sHYP, token );
+  _WKB_GETSHYP;
   printf( "WKB: hypo=%s in %s\n", sHYP, sURL ); 
   // Check if KB already loaded
-  wkb_ctx_t ctx = {
-    .skbid = sURL,
-    .found = 0
-  };
-  nxp_hash_iterate( (char *) TOPIC_WKB, (char *) ATTR_WKB, hypo_remote__cb, (void *) &ctx );
+  int loadedp = hypo_remote_loadedp( sURL );
   // Engine logics
-  if( !ctx.found ){
+  if( !loadedp ){
     // Need to loadkb first
     int err = hypo_remote_get_asfile( sURL );
     if( err ){

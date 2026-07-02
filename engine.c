@@ -10,7 +10,6 @@
 #include <stdarg.h>
 #include "agenda.h"
 
-#define TRACE_ON 1
 
 #ifdef FLTK
 extern void  repl_log( const char *s,... );

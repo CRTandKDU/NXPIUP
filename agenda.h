@@ -295,9 +295,22 @@ static inline void sign_init_value(sign_rec_ptr sign)
 #define TOPIC_WKB "WKB"
 #define ATTR_WKB  "KB"
 
+#define HYPO_REMOTE_DELIMS ((char *) "|")
+
+#define _WKB_GETSURL(s)   char *buf		= strdup( (s) );	\
+  char sURL[256]	= {0};						\
+  char sHYP[_CHOP]	= {0};						\
+  char *delims		= HYPO_REMOTE_DELIMS;				\
+  char *token		= strtok( buf, delims );
+
+#define _WKB_GETSHYP   strcpy( sURL, nxp_hash_get( token, (char *) "URL" ) );	\
+  token = strtok( NULL, delims );						\
+  strcpy( sHYP, token );
+
 int  hypo_remote_aliasp( char * );
 void hypo_remote_backward( sign_rec_ptr, int * );
 int  hypo_remote_get_asfile( const char * );
+int  hypo_remote_loadedp( char * );
 
 #endif
 
