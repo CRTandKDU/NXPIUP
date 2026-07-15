@@ -20,7 +20,9 @@
   (sign)->val.val_float = 0.0;        \
   (sign)->val.valptr = (char *)0;     \
 
-extern void  repl_log( const char *s );
+extern void repl_log( const char *s );
+extern void engine_dsl_getter_compound( compound_rec_ptr compound, int *suspend );
+
 
 compound_rec_ptr compound_pushnew( sign_rec_ptr top,
 				   const char *s, const int ngetters ){
@@ -34,7 +36,9 @@ compound_rec_ptr compound_pushnew( sign_rec_ptr top,
   compound->len_type		= (len <= _CHOP) ? len : _CHOP;
   char *to			= compound->str;
   char *from			= (char *)s;
-  for( unsigned short i		= 0; i < compound->len_type; *to++ = *from++, i++ ); *to = 0;
+  for( unsigned short i = 0; i < compound->len_type; *to++ = *from++, i++ )
+    ;
+  *to = 0;
   compound->len_type 	        |= COMPOUND_MASK;
   compound->ngetters		= ngetters;
   compound->nsetters		= 0;

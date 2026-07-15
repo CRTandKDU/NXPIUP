@@ -295,7 +295,7 @@ static inline void sign_init_value(sign_rec_ptr sign)
 #define TOPIC_WKB "WKB"
 #define ATTR_WKB  "KB"
 
-#define HYPO_REMOTE_DELIMS ((char *) "|")
+#define HYPO_REMOTE_DELIMS ((char *) "/")
 
 #define _WKB_GETSURL(s)   char *buf		= strdup( (s) );	\
   char sURL[256]	= {0};						\

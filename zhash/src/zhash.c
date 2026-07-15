@@ -187,7 +187,7 @@ static struct ZHashTable *zcreate_hash_table_with_size(size_t size_index)
 
   hash_table->size_index = size_index;
   hash_table->entry_count = 0;
-  hash_table->entries = (ZHashEntry **) zcalloc(hash_sizes[size_index], sizeof(void *));
+  hash_table->entries = (struct ZHashEntry **) zcalloc(hash_sizes[size_index], sizeof(void *));
 
   return hash_table;
 }
@@ -247,7 +247,7 @@ static void zhash_rehash(struct ZHashTable *hash_table, size_t size_index)
   entries = hash_table->entries;
 
   hash_table->size_index = size_index;
-  hash_table->entries = (ZHashEntry **) zcalloc(hash_sizes[size_index], sizeof(void *));
+  hash_table->entries = (struct ZHashEntry **) zcalloc(hash_sizes[size_index], sizeof(void *));
 
   for (ii = 0; ii < size; ii++) {
     struct ZHashEntry *entry;

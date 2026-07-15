@@ -1,12 +1,10 @@
 /**
- * hypo_remote.c -- Managing '<URL>#<hypo>' special sign aliases for hypo
+ * hypo_remote.c -- Managing '<WKBNAME>#<hypo>' special sign aliases for hypo
  *
  * Written on 2026-06-29.
  */
 
 /* curl https://raw.githubusercontent.com/CRTandKDU/NXPIUP/main/satfault.org */
-
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

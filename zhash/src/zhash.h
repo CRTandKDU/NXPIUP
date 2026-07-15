@@ -30,7 +30,7 @@ typedef void (*nxp_cb)( struct ZHashEntry * entry );
 // hash table creation and destruction
 struct ZHashTable *zcreate_hash_table(void);
 void zfree_hash_table(struct ZHashTable *hash_table);
-void nxp_zfree_hash_table(struct ZHashTable *hash_table, nxp_cb);
+void nxp_zfree_hash_table(struct ZHashTable *, nxp_cb);
 void nxp_iterate_hash_table(struct ZHashTable *hash_table, nxp_cb f);
 
 // hash table operations

@@ -29,7 +29,7 @@ APIS_CFLAGS		= -I$(APIS_DIR) -I$(DSL_DIR)/libforth -I$(DSL_DIR)/embed-master -I$
 
 CFLAGS_CURL             = `curl-config --cflags`
 CFLAGS_BOOST		= -I$(APIS_DIR)/boost_1_91_0
-CFLAGS_ZHASH		= -I$(APIS_DIR)/zhash
+CFLAGS_ZHASH		= -I$(APIS_DIR)/zhash/src
 CFLAGS_WEB              = -I./webview-master/core/include
 CFLAGS_NXP		= $(API_CFLAGS) $(CFLAGS_ZHASH) $(CFLAGS_BOOST) $(CFLAGS_CURL)
 
@@ -101,7 +101,7 @@ curltest: hypo_remote_get.o
 	$(CC) hypo_remote_get.o -o curltest.exe $(CFLAGS) `curl-config --cflags` `curl-config --libs`
 
 %.o: %.c $(API_DEPS)
-	$(CC) -c -o $@ $< $(APIS_CFLAGS) $(CFLAGS) $(DSL_CFLAGS)
+	$(CC) -c -o $@ $< $(APIS_CFLAGS) $(CFLAGS) $(CFLAGS_ZHASH) $(DSL_CFLAGS)
 
 %.o: %.cpp $(API_DEPS)
-	$(CPP) -c -o $@ $< $(CFLAGS_NXP) $(CFLAGS) $(DSL_CFLAGS)
+	$(CPP) -c -o $@ $< $(CFLAGS_NXP) $(CFLAGS) $(CFLAGS_ZHASH) $(DSL_CFLAGS)
