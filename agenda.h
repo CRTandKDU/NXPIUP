@@ -37,7 +37,7 @@ typedef struct   rule_rec *rule_rec_ptr;
 #define _UNKNOWN	 ((unsigned short)0xFF)
 #define _KNOWN	         ((unsigned short)0xFE)
 
-#define _CHOP 48
+#define _CHOP 31 // For MASKs to work
 
 char *S_val_color( unsigned short val );
 

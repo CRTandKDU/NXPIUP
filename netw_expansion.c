@@ -415,6 +415,7 @@ void netw__expand_backward(  cdCanvas *canvas, netw_cell_rec_ptr cell,
     // Parse alias sign into URL and anchor hypo
     _WKB_GETSURL(sign->str);
     //
+    
     printf( "HYPO_REMOTE_BWRD Expanding %s\n", token );
     if( !nxp_hash_exists( token, (char *) "URL" ) ){
       // Missing remote KB URL; Nothing to expand

@@ -953,6 +953,7 @@ static int cb_nxpshow(vm_extension_t * const v) {
   char           cmdstr[_MARSHALL_BUFLEN] = "cygstart ";
   res = marshall_forth_compactstring( cmdstr+9, v );
   system( cmdstr );
+  printf( "SHOW: %s\n", cmdstr );
   return res;
 }
 

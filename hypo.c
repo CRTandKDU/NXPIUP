@@ -29,7 +29,7 @@ hypo_rec_ptr hypo_pushnew(
                      sizeof(void *));
 
     hypo->len_type =
-        (unsigned short)strlen(name) | HYPO_MASK;
+        (unsigned short)strlen( hypo->str ) | HYPO_MASK;
 
     /*
      * Hypotheses manage getters differently from signs.
