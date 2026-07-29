@@ -1,53 +1,73 @@
+# Define compilers and tools
+# --------------------------------------------------------------------------------
 CPP 		= g++
 CC              = g++
 MSVCPP          = "C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.41.34120/bin/Hostx86/arm/cl.exe"
 
-# 1) IUP, CD and IM Section
-CFLAGS		= -I./include -I./include/cd -I./include/im
-LFLAGS		= -I./lib
+# Directories
+# --------------------------------------------------------------------------------
+APIS_DIR	= C:/Users/chauv/Documents/IUP
+DSL_DIR		= C:/cygwin64/home/Moria
 LIBS_DIR	= ./lib
-LIBS_CD		=  $(LIBS_DIR)/cdcontextplus.dll   $(LIBS_DIR)/cd.dll # $(LIBS_DIR)/cdcairo.dll   $(LIBS_DIR)/cddirect2d.dll  $(LIBS_DIR)/cdgl.dll  $(LIBS_DIR)/cdim.dll  $(LIBS_DIR)/cdlua54.dll  $(LIBS_DIR)/cdluacairo54.dll  $(LIBS_DIR)/cdluacontextplus54.dll  $(LIBS_DIR)/cdluadirect2d54.dll  $(LIBS_DIR)/cdluagl54.dll  $(LIBS_DIR)/cdluaim54.dll  $(LIBS_DIR)/cdluapdf54.dll  $(LIBS_DIR)/cdpdf.dll
-LIBS_IM         = $(LIBS_DIR)/im.dll $(LIBS_DIR)/iupim.dll
-LIBS_IUP	= $(LIBS_DIR)/iup.dll $(LIBS_DIR)/iupcd.dll
-LIBS_WEB        = $(LIBS_DIR)/iupweb.dll 
-LIBS		=  $(LIBS_DIR)/cdcontextplus.dll $(LIBS_DIR)/iupcd.dll $(LIBS_DIR)/iup.dll $(LIBS_DIR)/cd.dll $(LIBS_DIR)/iupcontrols.dll # ./lib/gdi32.dll ./lib/comdlg32.dll ./lib/comctl32.dll ./lib/uuid.dll ./lib/oleaut32.dll ./lib/ole32.dll
+
+# Include flags
+# --------------------------------------------------------------------------------
+CFLAGS_IUP      = -I./include -I./include/cd -I./include/im
+CFLAGS_CURL     = `curl-config --cflags`
+CFLAGS_BOOST	= -I$(APIS_DIR)/boost_1_91_0
+CFLAGS_ZHASH	= -I$(APIS_DIR)/zhash/src
+CFLAGS_WEB      = -I./webview-master/core/include
 
 MSV_CFLAGS      = -I"C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.41.34120/include"
 
+APIS_CFLAGS	= -I$(APIS_DIR) -I$(DSL_DIR)/libforth -I$(DSL_DIR)/embed-master -I$(DSL_DIR)/libcsv -I$(APIS_DIR)/zhash
+
+CFLAGS_NXP	= $(API_CFLAGS) $(CFLAGS_ZHASH) $(CFLAGS_BOOST) $(CFLAGS_CURL)
+CFLAGS		= -s
+
+
+# Linker Flags
+# --------------------------------------------------------------------------------
+LIBS_CD		=  $(LIBS_DIR)/cdcontextplus.dll   $(LIBS_DIR)/cd.dll
+# $(LIBS_DIR)/cdcairo.dll   $(LIBS_DIR)/cddirect2d.dll  $(LIBS_DIR)/cdgl.dll  $(LIBS_DIR)/cdim.dll  $(LIBS_DIR)/cdlua54.dll  $(LIBS_DIR)/cdluacairo54.dll  $(LIBS_DIR)/cdluacontextplus54.dll  $(LIBS_DIR)/cdluadirect2d54.dll  $(LIBS_DIR)/cdluagl54.dll  $(LIBS_DIR)/cdluaim54.dll  $(LIBS_DIR)/cdluapdf54.dll  $(LIBS_DIR)/cdpdf.dll
+
+LIBS_IM         = $(LIBS_DIR)/im.dll $(LIBS_DIR)/iupim.dll
+LIBS_IUP	= $(LIBS_DIR)/iup.dll $(LIBS_DIR)/iupcd.dll $(LIBS_DIR)/iupcontrols.dll
+LIBS_WEB        = $(LIBS_DIR)/iupweb.dll 
 LIBS_CURL       = `curl-config --libs`
+LIBS            = $(LIBS_CD) $(LIBS_IUP) $(LIBS_IM) $(LIBS_CURL)
 
-# 2) NXP DSL (Embed FORTH) Section
-DSL_DIR			= C:/cygwin64/home/Moria
-DSL_CFLAGS		= -D ENGINE_DSL -D ENGINE_DSL_HOWERJFORTH
-DSL_LFLAGS		= $(DSL_DIR)/libcsv/libcsv_la-libcsv.o $(DSL_DIR)/embed-master/util.o -L$(DSL_DIR)/embed-master -lembed # -lm
+LFLAGS		= -L./lib
 
-# 3) NXP (40y, 2025 edition) Section
-APIS_DIR		= C:/Users/chauv/Documents/IUP
-APIS_OBJS_NXP		= $(APIS_DIR)/sign.o $(APIS_DIR)/rule.o $(APIS_DIR)/hypo.o $(APIS_DIR)/compound.o $(APIS_DIR)/engine.o $(APIS_DIR)/engine_dsl.o $(APIS_DIR)/loadkb.o $(APIS_DIR)/nxp_hash.o $(APIS_DIR)/nxp_evoke.o
-APIS_DEPS		= agenda.h Makefile
-APIS_CFLAGS		= -I$(APIS_DIR) -I$(DSL_DIR)/libforth -I$(DSL_DIR)/embed-master -I$(DSL_DIR)/libcsv -I$(APIS_DIR)/zhash
 
-CFLAGS_CURL             = `curl-config --cflags`
-CFLAGS_BOOST		= -I$(APIS_DIR)/boost_1_91_0
-CFLAGS_ZHASH		= -I$(APIS_DIR)/zhash/src
-CFLAGS_WEB              = -I./webview-master/core/include
-CFLAGS_NXP		= $(API_CFLAGS) $(CFLAGS_ZHASH) $(CFLAGS_BOOST) $(CFLAGS_CURL)
+# NXP DSL (Embed FORTH) Flags Section
+# --------------------------------------------------------------------------------
+DSL_CFLAGS	= -D ENGINE_DSL -D ENGINE_DSL_HOWERJFORTH
+DSL_LFLAGS	= $(DSL_DIR)/libcsv/libcsv_la-libcsv.o $(DSL_DIR)/embed-master/util.o -L$(DSL_DIR)/embed-master -lembed # -lm
 
-OBJS_ZHASH		= $(APIS_DIR)/zhash/src/zhash.o
-OBJS_CURL               = hypo_remote.o hypo_remote_get.o
+# 3) NXP (40y, 2025 edition) Object files Section
+# --------------------------------------------------------------------------------
+APIS_OBJS_NXP	= $(APIS_DIR)/sign.o $(APIS_DIR)/rule.o $(APIS_DIR)/hypo.o $(APIS_DIR)/compound.o $(APIS_DIR)/engine.o $(APIS_DIR)/engine_dsl.o $(APIS_DIR)/loadkb.o $(APIS_DIR)/nxp_hash.o $(APIS_DIR)/nxp_evoke.o
 
-# 4) Rules Network Section
+APIS_DEPS	= $(APIS_DIR)/agenda.h $(APIS_DIR)/Makefile
+
+OBJS_ZHASH	= $(APIS_DIR)/zhash/src/zhash.o
+OBJS_CURL       = $(APIS_DIR)/hypo_remote.o $(APIS_DIR)/hypo_remote_get.o
+
+# Rules Network Section
+# --------------------------------------------------------------------------------
 # CSOURCES_NETW		= netw.c netw_internals.c netw_expansion.c netw_redraw.c
-OBJS_NETW		= netw.o netw_internals.o netw_expansion.o netw_redraw.o
+OBJS_NETW		= $(APIS_DIR)/netw.o $(APIS_DIR)/netw_internals.o $(APIS_DIR)/netw_expansion.o $(APIS_DIR)/netw_redraw.o
 
-# 5) IUP GUI Section
+# IUP GUI Section
+# --------------------------------------------------------------------------------
 # CSOURCES_NXPIUP	= nxpiup_menu.c nxpiup_ency.c  nxp_layout.cpp layout.cpp
-OBJS_NXPIUP		= nxpiup_question.o nxpiup_menu.o nxpiup_ency.o  nxp_layout.o layout.o
+OBJS_NXPIUP		= $(APIS_DIR)/nxpiup_question.o $(APIS_DIR)/nxpiup_menu.o $(APIS_DIR)/nxpiup_ency.o  $(APIS_DIR)/nxp_layout.o $(APIS_DIR)/layout.o
 
 
 # MAIN
 canvas3: canvas3.c $(OBJS_NXPIUP) $(OBJS_NETW) $(APIS_OBJS_NXP) $(OBJS_ZHASH) $(OBJS_CURL) 
-	$(CPP) $^ -o canvas3.exe  $(CFLAGS) $(DSL_CFLAGS) $(CFLAGS_NXP) $(LFLAGS) $(DSL_LFLAGS) $(LIBS) $(LIBS_IM) $(LIBS_CURL)
+	$(CPP) $^ -o canvas3.exe  $(CFLAGS) $(DSL_CFLAGS) $(CFLAGS_NXP) $(CFLAGS_IUP) $(LFLAGS) $(DSL_LFLAGS) $(LIBS)
 
 clean_nxp:
 	rm -i $(APIS_OBJS_NXP)
@@ -100,11 +120,13 @@ clean_nxp:
 # curltest: curltest.c
 # 	$(CC) curltest.c -o curltest.exe  $(APIS_CFLAGS) $(CFLAGS) $(DSL_CFLAGS) `curl-config --cflags` `curl-config --libs`
 
-curltest: hypo_remote_get.o
-	$(CC) hypo_remote_get.o -o curltest.exe $(CFLAGS) `curl-config --cflags` `curl-config --libs`
+# curltest: hypo_remote_get.o
+# 	$(CC) hypo_remote_get.o -o curltest.exe $(CFLAGS) `curl-config --cflags` `curl-config --libs`
 
-%.o: %.c $(API_DIRS)/agenda.h
+# Generics
+# --------------------------------------------------------------------------------
+%.o: %.c  $(API_DEPS)
 	$(CC) -c -o $@ $< $(APIS_CFLAGS) $(CFLAGS) $(CFLAGS_ZHASH) $(DSL_CFLAGS)
 
-%.o: %.cpp $(API_DEPS) $(API_DIRS)/agenda.h
+%.o: %.cpp $(API_DEPS) 
 	$(CPP) -c -o $@ $< $(CFLAGS_NXP) $(CFLAGS) $(CFLAGS_ZHASH) $(DSL_CFLAGS)
