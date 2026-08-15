@@ -33,9 +33,11 @@ void netw__redraw_onscale( cdCanvas *canvas, int scale, double WORLD_W, double W
   // Draw nodes. Iterate on cols then on cells.
   while( col ){
     cell = col->first;
+
     while( cell ){
       // What to write
       netw__text( canvas, cell, buf, &p );
+
       // Where to write it
       switch( cell->client_data_t ){
       case _NETW_SIGN_T:

@@ -63,11 +63,19 @@ void nxpiup_question__setvalue( int q_type ){
       sprintf( buf, "[SESSION] Set (%s): %s DSL: %d", sign->str, val.valptr, sign->val.val_forth );
       repl_log( buf );
       break;
+
     case _VAL_T_INT:
       val.val_int = atoi( ans );
       sprintf( buf, "[SESSION] Set (%s): %d DSL: %d", sign->str, val.val_int, sign->val.val_forth );
       repl_log( buf );
       break;
+
+    case _VAL_T_FLOAT:
+      val.val_float = strtof( ans, NULL );
+      sprintf( buf, "[SESSION] Set (%s): %f DSL: %d", sign->str, val.val_float, sign->val.val_forth );
+      repl_log( buf );
+      break;
+
     case _VAL_T_BOOL:
       if( 0 == strcmp( ans, QUESTION_BOOL_TRUE ) )
 	val.val_bool = 1;

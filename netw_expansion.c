@@ -414,7 +414,7 @@ void netw__expand_backward(  cdCanvas *canvas, netw_cell_rec_ptr cell,
     sign_rec_ptr hypo;
     // Parse alias sign into URL and anchor hypo
     _WKB_GETSURL(sign->str);
-    //
+    // This macro defines 'token'
     
     printf( "HYPO_REMOTE_BWRD Expanding %s\n", token );
     if( !nxp_hash_exists( token, (char *) "URL" ) ){
@@ -439,8 +439,10 @@ void netw__expand_backward(  cdCanvas *canvas, netw_cell_rec_ptr cell,
     else
       return;
   }
-  if( 0 == ncol1 )
+  if( 0 == ncol1 ){
+    printf( "EXPAND BWRD ncol1=0\n" );
     return;
+  }
   /* printf( "ToggleExpand %s (%d,%d): nrules=%d, ymax1=%d, ymax2=%d\npmax1=%d, pmax2=%d, pmin1=%d, pmin2=%d\n", */
   /* 	  sign->str, cell->head->x, cell->y, ncol1, y1, y2, */
   /* 	  cparent1 ? cparent1->y : -1, */
@@ -558,6 +560,7 @@ void netw__expand_backward(  cdCanvas *canvas, netw_cell_rec_ptr cell,
   }
   // Mark as expanded
   _EXP_RL_SET(cell);
+  /* netw__trace( (col_rec_ptr) cdCanvasGetAttribute( canvas, "USERDATA" ) ); */
 }
 
 /*-----------------------------------------------------------------

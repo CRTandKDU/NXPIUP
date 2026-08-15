@@ -125,8 +125,8 @@ clean_nxp:
 
 # Generics
 # --------------------------------------------------------------------------------
-%.o: %.c  $(API_DEPS)
-	$(CC) -c -o $@ $< $(APIS_CFLAGS) $(CFLAGS) $(CFLAGS_ZHASH) $(DSL_CFLAGS)
+$(APIS_DIR)/%.o: $(APIS_DIR)/%.c  $(APIS_DEPS)
+	$(CC) -c -o $@ $< $(APIS_CFLAGS) $(CFLAGS) $(CFLAGS_IUP) $(CFLAGS_ZHASH) $(DSL_CFLAGS)
 
-%.o: %.cpp $(API_DEPS) 
-	$(CPP) -c -o $@ $< $(CFLAGS_NXP) $(CFLAGS) $(CFLAGS_ZHASH) $(DSL_CFLAGS)
+$(APIS_DIR)/%.o: $(APIS_DIR)/%.cpp $(APIS_DEPS) 
+	$(CPP) -c -o $@ $< $(CFLAGS_NXP) $(CFLAGS) $(CFLAGS_IUP) $(CFLAGS_ZHASH) $(DSL_CFLAGS)

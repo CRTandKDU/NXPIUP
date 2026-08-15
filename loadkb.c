@@ -167,6 +167,8 @@ loadkb_parse_cb( char *pw, compound_rec_ptr compound, sign_rec_ptr top ){
     /* repl_log( "pushnew" ); */
     lsign->val.type = _VAL_T_INT;
     if( '$' == pw[0] ) lsign->val.type = _VAL_T_STR;
+    // Saturday, August 15, 2026
+    if( '!' == pw[0] ) lsign->val.type = _VAL_T_FLOAT;
   }
   if( compound ) compound_DSLvar_pushnew( compound, lsign );
   r = engine_dsl_DSLvar_declare( pw, lsign );

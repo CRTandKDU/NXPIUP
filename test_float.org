@@ -1,0 +1,9 @@
+#+BEGIN_RULE diagnostic_1
+$CRT_and_KDU nxp@ s( AGREE) compare 0=
+$task nxp@ s( FLUID_TRANSFER) compare 0= invert
+!prob nxp@ s( 2.5) nxp2f f<
+NO ALARM_TANK_WAS_P1_OR_P2
+pressure_out_P3 nxp@ pressure_out_P4 nxp@ =
+THEN DECREASE_DUE_TO_THERMAL_CONDITIONS
+!prob nxp@ fsqrt !delta nxp!
+#+END_RULE

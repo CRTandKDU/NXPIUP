@@ -146,6 +146,9 @@ void reset( sign_rec_ptr sign ){
     case _VAL_T_INT:
       sign->val.val_int = _UNKNOWN;
       break;
+    case _VAL_T_FLOAT:
+      sign->val.val_float = 0.0;
+      break;
     case _VAL_T_STR:
       if( sign->val.valptr ) free( sign->val.valptr );
       sign->val.valptr = (char *)0;

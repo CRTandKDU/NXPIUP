@@ -29,6 +29,7 @@
 #define NXPIUP_KNOWNTRUE	"True"
 #define NXPIUP_KNOWNFALSE	"False"
 #define NXPIUP_KNOWNINT		"%d"
+#define NXPIUP_KNOWNFLOAT	"%f"
 #define NXPIUP_KNOWNSTR		"%s"
 
 #define NXPIUP_ENCY_WIDTH  200
@@ -104,6 +105,7 @@ long int nxpiup_ency__textcolor( sign_rec_ptr sign ){
       break;
       
     case _VAL_T_FLOAT:
+      text_color = S_NETW_COLOR_KNOWN;
       break;
       
     case _VAL_T_STR:
@@ -138,6 +140,7 @@ void nxpiup_ency__valuestr( sign_rec_ptr sign, char *svalue ){
     break;
     
   case _VAL_T_FLOAT:
+    sprintf( svalue, NXPIUP_KNOWNFLOAT, val.val_float );	    
     break;
      
   case _VAL_T_STR:

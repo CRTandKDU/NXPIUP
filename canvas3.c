@@ -413,7 +413,9 @@ void print_local_val_repr( struct val_rec *val ){
     break;
     
   case _VAL_T_FLOAT:
-     break;
+    printf( "%f", val->val_float );
+    return;
+    break;
      
   case _VAL_T_STR:
     if( val->valptr )

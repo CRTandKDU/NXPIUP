@@ -22,7 +22,7 @@ void netw__trace( col_rec_ptr col ){
   for( c = col; c; c=c->next ){
     cell = c->first;
     while( cell ){
-      printf( "Col %d: Cell %d %d %s\n", c->x, cell->head->x, cell->y,
+      printf( "<TRACE> Col %d: Cell %d %d %s\n", c->x, cell->head->x, cell->y,
 	      cell->client_data_t  == _NETW_JUNCTION_T ?
 	      "JUNCTION" :
 	      ((sign_rec_ptr) cell->client_data)->str );

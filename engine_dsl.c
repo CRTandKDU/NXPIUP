@@ -102,6 +102,7 @@ struct vm_extension_t {
   X("fmin",     cb_fmin,       true)		\
   X("fmax",     cb_fmax,       true)		\
   \
+  X("nxp2f",    cb_nxp2f,            true)      \
   X("nxp@",     cb_nxpget_async,     true)      \
   X("nxp!",     cb_nxpset,     true)            \
   X("nxp_show", cb_nxpshow,    true)            \
@@ -304,6 +305,9 @@ static int cb_f2d(vm_extension_t * const v) {
 static int cb_fless(vm_extension_t * const v) {
   const vm_float_t f1 = fpop(v);
   const vm_float_t f2 = fpop(v);
+  char msg[128]={0};
+  printf( msg, "fless %f %f %d", f1, f2, (f2<f1) );
+
   push(v, -(f2 < f1));
   return eclr(v);
 }
@@ -650,31 +654,46 @@ void marshall_forth_string( char *str, vm_extension_t * const v ){
 }
 
 int marshall_forth_compactstring( char *str, vm_extension_t * const v ){
-  int len;
-  short i;
+  /* int len; */
+  /* short i; */
+  /* embed_mmu_read_t  mr = v->h->o.read; */
+  /* cell_t val, addr; */
+  /* // Read length */
+  /* int r = embed_pop( v->h, &val ); */
+  /* len	= (int)val; */
+  /* char buf[32]; */
+  /* /\* sprintf( buf, "Marshall len %d\n", len ); *\/ */
+  /* /\* repl_log( buf ); *\/ */
+  /* // Decode string at address `addr` */
+  /* r	= embed_pop( v->h, &addr ); */
+  /* int loc = (addr>>1)%32768; */
+  /* for( i=0; i <= len; i+=2 ){ */
+  /*   val		= mr( v->h, loc + (i>>1) ); */
+  /*   /\* sprintf( buf, "%d|%c|%d\n", loc + (i>>1), ((int)val) & 0xFF, ((int)val) & 0xFF ); *\/ */
+  /*   /\* repl_log( buf ); *\/ */
+  /*   if( i>0 ) str[i-1] = ((int)val) & 0xFF; */
+  /*   /\* sprintf( buf, "%d|%c|%d\n", loc + (i>>1), (((int)val) >> 8) & 0xFF, (((int)val) >> 8) & 0xFF ); *\/ */
+  /*   /\* repl_log( buf ); *\/ */
+  /*   str[i] = (i<len) ? (((int)val) >> 8) & 0xFF : 0; */
+  /* } */
+  /* str[len] = 0; */
+  /* /\* sprintf( buf, "Marshall str |%s|\n", str ); *\/ */
+  /* /\* repl_log( buf ); *\/ */
+  int len, i, r;
+  cell_t loc, val, addr;
+  char buf[_MARSHALL_BUFLEN] = {0};
   embed_mmu_read_t  mr = v->h->o.read;
-  cell_t val, addr;
   // Read length
-  int r = embed_pop( v->h, &val );
+  r	= embed_pop( v->h, &val );
   len	= (int)val;
-  char buf[32];
-  /* sprintf( buf, "Marshall len %d\n", len ); */
-  /* repl_log( buf ); */
   // Decode string at address `addr`
   r	= embed_pop( v->h, &addr );
-  int loc = (addr>>1)%32768;
-  for( i=0; i <= len; i+=2 ){
-    val		= mr( v->h, loc + (i>>1) );
-    /* sprintf( buf, "%d|%c|%d\n", loc + (i>>1), ((int)val) & 0xFF, ((int)val) & 0xFF ); */
-    /* repl_log( buf ); */
-    if( i>0 ) str[i-1] = ((int)val) & 0xFF;
-    /* sprintf( buf, "%d|%c|%d\n", loc + (i>>1), (((int)val) >> 8) & 0xFF, (((int)val) >> 8) & 0xFF ); */
-    /* repl_log( buf ); */
-    str[i] = (i<len) ? (((int)val) >> 8) & 0xFF : 0;
+  loc	= (addr>>1) % 32768 ;
+  for( i=0; i<=len; i++ ){
+    val	= mr( v->h, loc + (i>>1) );
+    str[i] = i%2 ? (char) ((val >> 8) & 0x00FF) : (char) (val & 0x00FF);
   }
   str[len] = 0;
-  /* sprintf( buf, "Marshall str |%s|\n", str ); */
-  /* repl_log( buf ); */
   return r;
 }
 
@@ -702,6 +721,11 @@ int nxpget_unknown( vm_extension_t * const v, sign_rec_ptr sign ){
   case _VAL_T_INT:
     res = embed_push( v->h, (cell_t)_UNKNOWN );
     break;
+    // Saturday, August 15, 2026    
+  case _VAL_T_FLOAT:
+    res = eclr(v);
+    fpush( v, (vm_float_t) 255. );
+    break;
   case _VAL_T_STR:
     res = embed_push( v->h, (cell_t) sign->val.val_forth );
     res = embed_push( v->h, (cell_t) 0 );
@@ -713,12 +737,18 @@ int nxpget_unknown( vm_extension_t * const v, sign_rec_ptr sign ){
 int nxpget_known( vm_extension_t * const v, sign_rec_ptr sign ){
   int res;
   cell_t val;
+  vm_float_t flt;
   switch( sign->val.type ){
   case _VAL_T_INT:
     val = (cell_t) sign->val.val_int;
     res = embed_push( v->h, val );
     break;
-    //
+    // Saturday, August 15, 2026
+  case _VAL_T_FLOAT:
+    flt = (vm_float_t) sign->val.val_float;
+    fpush( v, flt );
+    break;
+    
   case _VAL_T_STR:
     cell_t cell = sign->val.val_forth;
     /* embed_mmu_read_t  mr = v->h->o.read; */
@@ -963,11 +993,21 @@ static int cb_nxpslog(vm_extension_t * const v) {
   return 0;
 }
 
+static int cb_nxp2f(vm_extension_t * const v) {
+  char str[_MARSHALL_BUFLEN]	= {0};
+  int res			= marshall_forth_compactstring( str, v );
+  vm_float_t f			= strtof( str, NULL );
+  fpush( v, f );
+  return eclr(v);
+}
+
+
 /* ----------------------------------------------------------------------------- */
 static int cb_nxpset(vm_extension_t * const v) {
   unsigned short i;
   int            res, len;
   cell_t         val;
+  vm_float_t     flt;
   char           str[_MARSHALL_BUFLEN] = "";
   struct val_rec vrec = { _KNOWN, _VAL_T_BOOL, (char *)0, _FALSE, 0, 0.0 };
   sign_rec_ptr   sign = nxpget_sign( v );
@@ -979,6 +1019,14 @@ static int cb_nxpset(vm_extension_t * const v) {
       vrec.val_int = (int)val;
       sign_set_default( sign, &vrec );
       break;
+      // Saturday, August 15, 2026
+    case _VAL_T_FLOAT:
+      flt = fpop( v );
+      vrec.type    = _VAL_T_FLOAT;
+      vrec.val_float = flt;
+      sign_set_default( sign, &vrec );
+      break;
+      
     case _VAL_T_STR:
       /* res = embed_pop( v->h, &val ); */
       /* len = (int)val; */
