@@ -341,7 +341,13 @@ void netw__expand_forward(  cdCanvas *canvas, netw_cell_rec_ptr cell,
       netw__forward_single( canvas, cell, WORLD_W, WORLD_H, orientation );
       break;
     case SIGN_MASK:
-      netw__forward_dslvar( canvas, cell, WORLD_W, WORLD_H, orientation, sign );
+      if( cell->client_data_t == _NETW_SIGN_NO_T ||
+	  cell->client_data_t == _NETW_SIGN_YES_T ){
+	netw__forward_single( canvas, cell, WORLD_W, WORLD_H, orientation );
+      }
+      else{
+	netw__forward_dslvar( canvas, cell, WORLD_W, WORLD_H, orientation, sign );
+      }
       break;
     }
   }
